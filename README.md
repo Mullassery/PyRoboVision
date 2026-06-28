@@ -1,8 +1,10 @@
 # PyRoboVision
 
-Advanced autonomous driving perception and vision-language foundation models for robotics. Built on top of [PyRoboFrames](https://github.com/Mullassery/PyRoboFrames).
+Advanced autonomous driving perception and vision-language foundation models for robotics. Builds on [PyRoboFrames](https://github.com/Mullassery/PyRoboFrames) for data loading.
 
-**Focus:** Advanced perception pipelines and multimodal understanding that consume data loaded by PyRoboFrames.
+**Focus:** Perception algorithms (stitching, 3D fusion, foundation models) that consume data from PyRoboFrames or your own loaders.
+
+**Note:** PyRoboVision is a **consumer library**, not a foundation. It depends on PyRoboFrames v1.0+ but works with any data source.
 
 ---
 
@@ -28,7 +30,7 @@ Advanced autonomous driving perception and vision-language foundation models for
 
 ```bash
 # Requires PyRoboFrames v1.0+
-pip install pyroboframes pyroboframes-vision
+pip install pyroboframes pyrobovision
 
 # From source
 git clone https://github.com/Mullassery/PyRoboVision.git
