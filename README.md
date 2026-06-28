@@ -1,5 +1,10 @@
 # PyRoboVision
 
+[![PyPI](https://img.shields.io/pypi/v/pyrobovision)](https://pypi.org/project/pyrobovision/)
+[![Python](https://img.shields.io/pypi/pyversions/pyrobovision)](https://pypi.org/project/pyrobovision/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![Tests](https://img.shields.io/badge/tests-149%20passing-brightgreen)]()
+
 Advanced autonomous driving perception and vision-language foundation models for robotics. Builds on [PyRoboFrames](https://github.com/Mullassery/PyRoboFrames) for data loading.
 
 **Focus:** Perception algorithms (stitching, 3D fusion, foundation models) that consume data from PyRoboFrames or your own loaders.
@@ -168,9 +173,18 @@ MIT (same as PyRoboFrames)
 
 ## Contributing
 
-Contributions welcome. Please open issues and PRs on GitHub.
+Contributions welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup, development workflow, and guidelines.
 
-For architectural decisions, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+For architectural decisions, see [ARCHITECTURE.md](./ARCHITECTURE.md).  
+For security issues, see [SECURITY.md](./SECURITY.md).
+
+---
+
+## Community
+
+- **GitHub Issues** — [Ask questions, report bugs](https://github.com/Mullassery/PyRoboVision/issues)
+- **GitHub Discussions** — [Share ideas and best practices](https://github.com/Mullassery/PyRoboVision/discussions)
+- **Code of Conduct** — [Be respectful and constructive](./CODE_OF_CONDUCT.md)
 
 ---
 
