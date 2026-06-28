@@ -1,0 +1,98 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyrobovision"
+version = "0.5.0"
+description = "Advanced autonomous driving perception and vision-language foundation models for robotics"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
+keywords = [
+    "robotics",
+    "autonomous-driving",
+    "perception",
+    "computer-vision",
+    "foundation-models",
+    "sam3",
+    "clip",
+    "grounding-dino",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+requires-python = ">=3.10"
+
+dependencies = [
+    "pyroboframes>=1.0.0",
+    "numpy>=1.24.0",
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "transformers>=4.30.0",
+    "scipy>=1.10.0",
+    "open3d>=0.17.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.4.0",
+    "ruff>=0.0.285",
+]
+
+cuda = [
+    "cupy>=12.0.0",
+    "torch[cuda11x]>=2.0.0",
+]
+
+mlx = [
+    "mlx>=0.0.13",
+]
+
+[project.urls]
+Homepage = "https://github.com/Mullassery/PyRoboVision"
+Documentation = "https://github.com/Mullassery/PyRoboVision/blob/main/README.md"
+Repository = "https://github.com/Mullassery/PyRoboVision"
+"Bug Tracker" = "https://github.com/Mullassery/PyRoboVision/issues"
+
+[tool.setuptools]
+packages = ["pyrobovision"]
+
+[tool.setuptools.package-data]
+pyrobovision = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312", "py313"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_mode = 3
+skip_glob = ["*.pyi"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=pyrobovision --cov-report=term-missing"
+asyncio_mode = "auto"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
