@@ -4,12 +4,13 @@
 [![Python](https://img.shields.io/pypi/pyversions/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Tests](https://img.shields.io/badge/tests-149%20passing-brightgreen)]()
+[![PyRoboFrames](https://img.shields.io/badge/PyRoboFrames-1.1.0+-blue)](https://github.com/Mullassery/PyRoboFrames)
 
-Advanced autonomous driving perception and vision-language foundation models for robotics. Builds on [PyRoboFrames](https://github.com/Mullassery/PyRoboFrames) for data loading.
+Advanced autonomous driving perception and vision-language foundation models for robotics. Builds on [PyRoboFrames 1.1.0+](https://github.com/Mullassery/PyRoboFrames) for data loading.
 
 **Focus:** Perception algorithms (stitching, 3D fusion, foundation models) that consume data from PyRoboFrames or your own loaders.
 
-**Note:** PyRoboVision is a **consumer library**, not a foundation. It depends on PyRoboFrames v1.0+ but works with any data source.
+**Note:** PyRoboVision is a **consumer library**, not a foundation. It handles perception — PyRoboFrames handles data loading. Clear separation of concerns.
 
 ---
 
@@ -34,8 +35,14 @@ Advanced autonomous driving perception and vision-language foundation models for
 ## Installation
 
 ```bash
-# Requires PyRoboFrames v1.0+
-pip install pyroboframes pyrobovision
+# Requires PyRoboFrames 1.1.0+
+pip install "pyroboframes>=1.1.0" pyrobovision
+
+# With NVIDIA GPU support
+pip install "pyroboframes>=1.1.0" "pyrobovision[cuda]"
+
+# With Apple Silicon (MLX)
+pip install "pyroboframes>=1.1.0" "pyrobovision[mlx]"
 
 # From source
 git clone https://github.com/Mullassery/PyRoboVision.git
@@ -83,6 +90,32 @@ for obj in scene.objects:
     print(f"{obj.object_class}: {obj.semantic_label}")
 ```
 
+### Loading Data with PyRoboFrames 1.1.0
+
+PyRoboVision consumes data loaded by PyRoboFrames. With 1.1.0 you can now load from
+HDF5, NetCDF, RLDS, or stream from S3/GCS before passing frames to PyRoboVision:
+
+```python
+import pyroboframes as prf
+from pyrobovision.automotive import CylindricalStitcher, get_waymo_layout
+
+# Load a Waymo RLDS dataset and run panoramic stitching
+prf.convert_rlds("waymo_open_dataset", "/tmp/waymo_lerobot")
+ds = prf.RoboFrameDataset.from_path("/tmp/waymo_lerobot")
+
+stitcher = CylindricalStitcher(get_waymo_layout(), blend_method="laplacian")
+
+loader = ds.loader(
+    cameras=["FRONT", "FRONT_LEFT", "FRONT_RIGHT", "SIDE_LEFT", "SIDE_RIGHT"],
+    batch_size=1,
+    output="numpy",
+)
+
+for batch in loader:
+    frames = {cam: batch[cam][0] for cam in loader.cameras}
+    panorama = stitcher.stitch(frames)
+```
+
 ---
 
 ## Architecture
@@ -106,22 +139,26 @@ PyRoboVision/
     ├── grounding_dino.py
     └── multimodal_fusion.py
 
-↓ Depends on PyRoboFrames v1.0+ (dataloader)
-PyRoboFrames/
-├── RoboFrameDataset      # Load LeRobot
-├── ProprioceptiveLoader  # Load state/action
-├── DataLoader            # Device selection
-└── [video decode, sensor fusion, etc.]
+↓ Depends on PyRoboFrames 1.1.0+ (dataloader)
+PyRoboFrames 1.1.0/
+├── RoboFrameDataset      # Load LeRobot, HDF5, NetCDF, RLDS
+├── ProprioceptiveLoader  # Load state/action only
+├── DataLoader            # Device selection + caching
+├── RemoteDataset         # S3/GCS streaming
+├── DatasetValidator      # Data quality checks
+└── [codec selection, quality scoring, distributed, ...]
 ```
 
-**Key design:** PyRoboVision is a consumer library, not a foundation. It uses PyRoboFrames to load data, then applies perception algorithms.
+**Key design:** PyRoboVision handles perception; PyRoboFrames handles data loading.
+Any data source PyRoboFrames can load — LeRobot, RLDS, HDF5, NetCDF, S3/GCS — is
+immediately usable as input to PyRoboVision algorithms.
 
 ---
 
 ## Features
 
 | Phase | Feature | Status | Tests |
-|-------|---------|--------|-------|
+|---|---|---|---|
 | **1** | Cylindrical panoramic projection | ✅ | 10 |
 | **2** | Laplacian pyramid blending | ✅ | 5 |
 | **3** | Bird's-eye-view (BEV) projection | ✅ | 5 |
@@ -141,42 +178,43 @@ PyRoboFrames/
 ## Use Cases
 
 ### Autonomous Driving
-- Waymo perception pipeline (panoramic stitching + 3D fusion)
-- nuScenes multi-camera understanding
-- Real-time BEV mapping
+- Waymo/nuScenes perception pipeline (panoramic stitching + 3D fusion)
+- Real-time BEV mapping from multi-camera rigs
+- Open X-Embodiment dataset analysis via PyRoboFrames RLDS loader
 
 ### Mobile Manipulation
 - Egocentric robot perception (360° view from mobile base)
 - Scene understanding for pick-and-place
 
 ### Robotdog Navigation
-- Panoramic localization (where am I in the scene?)
-- Terrain classification from multi-camera fusion
+- Panoramic localization from multi-camera fusion
+- Terrain classification from BEV projection
+
+### Data Pipeline Integration
+- Validate incoming camera data before perception (`prf.DatasetValidator`)
+- Load from remote S3/GCS warehouses into perception pipelines (`prf.RemoteDataset`)
+- Convert legacy HDF5 simulation data for scene understanding (`prf.convert_hdf5`)
 
 ---
 
 ## Related Projects
 
-- **[PyRoboFrames](https://github.com/Mullassery/PyRoboFrames)** — Fast ML dataloader for robot learning (core dependency)
+- **[PyRoboFrames 1.1.0](https://github.com/Mullassery/PyRoboFrames)** — Fast ML dataloader (core dependency): LeRobot, RLDS, HDF5, NetCDF, S3/GCS, Ray
 - **[LeRobot](https://github.com/huggingface/lerobot)** — HuggingFace robotics datasets
+- **[Open X-Embodiment](https://robotics-transformer-x.github.io/)** — Cross-embodiment robotics datasets
 - **[Segment Anything 3 (SAM3)](https://github.com/facebookresearch/segment-anything-3)** — Instance segmentation
 - **[CLIP](https://github.com/openai/CLIP)** — Vision-language models
 - **[Grounding DINO](https://github.com/IDEA-Research/GroundingDINO)** — Open-vocabulary detection
 
 ---
 
-## License
+## Documentation
 
-MIT (same as PyRoboFrames)
-
----
-
-## Contributing
-
-Contributions welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup, development workflow, and guidelines.
-
-For architectural decisions, see [ARCHITECTURE.md](./ARCHITECTURE.md).  
-For security issues, see [SECURITY.md](./SECURITY.md).
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — Design and implementation
+- [CONTRIBUTING.md](./CONTRIBUTING.md) — Development setup and guidelines
+- [CHANGELOG.md](./CHANGELOG.md) — Version history
+- [SECURITY.md](./SECURITY.md) — Vulnerability reporting
+- [docs/BENCHMARKS.md](./docs/BENCHMARKS.md) — Performance benchmarks
 
 ---
 
@@ -185,6 +223,18 @@ For security issues, see [SECURITY.md](./SECURITY.md).
 - **GitHub Issues** — [Ask questions, report bugs](https://github.com/Mullassery/PyRoboVision/issues)
 - **GitHub Discussions** — [Share ideas and best practices](https://github.com/Mullassery/PyRoboVision/discussions)
 - **Code of Conduct** — [Be respectful and constructive](./CODE_OF_CONDUCT.md)
+
+## Contributing
+
+Contributions welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and guidelines.
+
+For security issues, see [SECURITY.md](./SECURITY.md).
+
+---
+
+## License
+
+MIT (same as PyRoboFrames) — © Georgi Mammen Mullassery
 
 ---
 

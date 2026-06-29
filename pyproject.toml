@@ -36,7 +36,7 @@ classifiers = [
 requires-python = ">=3.10"
 
 dependencies = [
-    "pyroboframes>=1.0.0",
+    "pyroboframes>=1.1.0",
     "numpy>=1.24.0",
     "torch>=2.0.0",
     "torchvision>=0.15.0",
