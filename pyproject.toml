@@ -5,25 +5,42 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pyrobovision"
 version = "0.5.0"
-description = "Advanced autonomous driving perception and vision-language foundation models for robotics"
+description = "Advanced autonomous driving perception system. Multi-camera cylindrical stitching, BEV projection, 3D Lidar fusion. SAM3/CLIP/Grounding DINO integration for panoptic segmentation and 3D object detection."
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
 keywords = [
-    "robotics",
     "autonomous-driving",
-    "perception",
     "computer-vision",
-    "foundation-models",
-    "sam3",
+    "perception",
+    "lidar-fusion",
+    "3d-object-detection",
+    "bev-bird-eye-view",
+    "panoptic-segmentation",
+    "semantic-segmentation",
+    "camera-calibration",
+    "vision-language-models",
     "clip",
-    "grounding-dino",
+    "segment-anything",
+    "foundation-models",
+    "self-driving",
+    "robotics",
+    "deep-learning",
+    "neural-networks",
+    "pytorch",
+    "image-processing",
+    "sensor-fusion",
+    "automotive",
+    "safety-critical",
+    "ml-ops",
+    "edge-ai"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -32,6 +49,9 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Scientific/Engineering :: Image Recognition",
+    "Topic :: Scientific/Engineering :: Robotics",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 requires-python = ">=3.10"
 
@@ -66,9 +86,12 @@ mlx = [
 
 [project.urls]
 Homepage = "https://github.com/Mullassery/PyRoboVision"
-Documentation = "https://github.com/Mullassery/PyRoboVision/blob/main/README.md"
 Repository = "https://github.com/Mullassery/PyRoboVision"
+Documentation = "https://github.com/Mullassery/PyRoboVision#readme"
 "Bug Tracker" = "https://github.com/Mullassery/PyRoboVision/issues"
+Changelog = "https://github.com/Mullassery/PyRoboVision/releases"
+"Source Code" = "https://github.com/Mullassery/PyRoboVision/tree/main"
+Discussions = "https://github.com/Mullassery/PyRoboVision/discussions"
 
 [tool.setuptools]
 packages = ["pyrobovision"]
