@@ -43,6 +43,10 @@ class CLIPEmbedder:
         except ImportError:
             raise ImportError("CLIPEmbedder requires clip-by-openai (pip install clip-by-openai)")
 
+        # SECURITY: Check GPU memory before loading model
+        from . import backend  # noqa: F401,PLC0415
+        backend.check_gpu_memory(device, required_gb=2.0)
+
         self.model_name = model
         self.device = device
         self.model, self.preprocess = clip.load(model, device=device)

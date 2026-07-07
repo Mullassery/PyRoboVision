@@ -21,6 +21,9 @@ import platform
 
 VALID_DEVICES = ("cuda", "mps", "mlx", "cpu")
 
+# SECURITY: Prevent DOS via excessive GPU memory allocation
+MAX_GPU_MEMORY_GB = 8  # Maximum 8GB per device allocation
+
 
 def _is_apple_silicon() -> bool:
     return platform.system() == "Darwin" and platform.machine() == "arm64"
@@ -113,3 +116,43 @@ def available_backends() -> dict[str, bool]:
         "mlx": _has_mlx() and _is_apple_silicon(),
         "cpu": True,
     }
+
+
+def check_gpu_memory(device: str = "auto", required_gb: float = 2.0) -> bool:
+    """Check if GPU device has sufficient free memory.
+
+    Args:
+        device: Device to check ("cuda", "mps", "mlx", or "auto")
+        required_gb: Required free memory in GB
+
+    Returns:
+        True if device has enough memory; raises ValueError if allocation would exceed MAX_GPU_MEMORY_GB
+    """
+    if required_gb > MAX_GPU_MEMORY_GB:
+        raise ValueError(
+            f"Requested {required_gb:.1f}GB exceeds GPU memory limit of {MAX_GPU_MEMORY_GB}GB"
+        )
+
+    dev = resolve_device(device)
+    if dev == "cpu":
+        return True
+
+    torch = _torch()
+    if not torch:
+        return True
+
+    if dev == "cuda":
+        if not torch.cuda.is_available():
+            return False
+        try:
+            free_mb = torch.cuda.mem_get_info()[0] / (1024 ** 2)
+            free_gb = free_mb / 1024
+            if free_gb < required_gb:
+                raise RuntimeError(
+                    f"GPU has only {free_gb:.1f}GB free but {required_gb:.1f}GB required"
+                )
+            return True
+        except Exception as e:
+            raise RuntimeError(f"Failed to check GPU memory: {e}") from e
+
+    return True
