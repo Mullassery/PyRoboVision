@@ -9,6 +9,7 @@ description = "Advanced autonomous driving perception system. Multi-camera cylin
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
+maintainers = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
 keywords = [
     "autonomous-driving",
     "computer-vision",
@@ -36,7 +37,7 @@ keywords = [
     "edge-ai"
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
