@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyrobovision"
-version = "0.5.0"
+version = "1.0.0"
 description = "Advanced autonomous driving perception system. Multi-camera cylindrical stitching, BEV projection, 3D Lidar fusion. SAM3/CLIP/Grounding DINO integration for panoptic segmentation and 3D object detection."
 readme = "README.md"
 license = { text = "MIT" }
