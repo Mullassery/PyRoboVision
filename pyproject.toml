@@ -63,7 +63,6 @@ dependencies = [
     "torchvision>=0.15.0",
     "transformers>=4.30.0",
     "scipy>=1.10.0",
-    "open3d>=0.17.0",
 ]
 
 [project.optional-dependencies]
@@ -83,6 +82,10 @@ cuda = [
 
 mlx = [
     "mlx>=0.0.13",
+]
+
+vision3d = [
+    "open3d>=0.17.0",
 ]
 
 [project.urls]
