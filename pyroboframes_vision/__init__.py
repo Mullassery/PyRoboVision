@@ -1,1 +1,3 @@
-fatal: invalid object name 'v0.5.3'.
+"""PyRoboFrames vision module - hardware-accelerated perception for robotics."""
+
+__version__ = "1.0.0"
