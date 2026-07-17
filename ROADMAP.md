@@ -21,13 +21,13 @@ PyRoboVision provides autonomous driving perception and foundation model inferen
 - Temporal, Airflow integration for AV pipelines
 - Multi-frame processing API
 
-## In Progress
-
-⏳ **v1.2 (Aug 2026)** — Tracking & Prediction
-- Multi-object tracking (MOT)
-- Trajectory prediction
-- Behavioral analysis
-- Intent prediction
+✅ **v1.2 (Aug 2026)** — Tracking & Prediction
+- Multi-object tracking (MOT) — Kalman filter + Hungarian algorithm
+- Trajectory prediction — CV/CA models with ADE/FDE metrics
+- Behavioral analysis — 8-class motion + 8-class behavior classification
+- Intent prediction — 11-class intent with collision detection
+- Uncertainty quantification — Covariance + confidence ellipses
+- **124 tests, 70% coverage, <50ms latency per frame**
 
 ## Planned
 
