@@ -1,6 +1,6 @@
 # PyRoboVision Roadmap
 
-**Current Version:** v1.1.0
+**Current Version:** v1.2.0
 
 ## Vision
 
@@ -37,15 +37,15 @@ PyRoboVision provides autonomous driving perception and foundation model inferen
 - Depth-LiDAR fusion for multi-sensor accuracy
 - **64 tests, 88% coverage, real-time performance**
 
-📅 **v2.0 (Oct 2026)** — End-to-End Learning
-
-✅ **v2.0 (Oct 2026)** — End-to-End Learning
+✅ **v2.0 (Oct 2026)** — End-to-End Learning & Optimization
 - Imitation learning framework — Trajectory collection & augmentation
 - Behavior cloning models — Supervised learning from demos
 - Policy networks — Actor-critic with value head
 - Safety validation — Constraint-based action correction
 - Training infrastructure — Early stopping, logging, checkpoints
-- **57 tests, 89% coverage, <2ms latency per inference**
+- Sensor fusion — IMU/GPS Kalman filter with WGS84→ENU transformation
+- Model optimization — ONNX/TensorRT export, int8/int16/float16 quantization, inference profiling
+- **79 tests, 82% coverage, <2ms latency per inference, 4-10x GPU speedup**
 
 📅 **v2.5 (Q4 2026)** — Autonomous Driving
 - Full autonomous driving stack

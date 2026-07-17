@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyrobovision"
-version = "1.0.0"
-description = "Advanced autonomous driving perception system. Multi-camera cylindrical stitching, BEV projection, 3D Lidar fusion. SAM3/CLIP/Grounding DINO integration for panoptic segmentation and 3D object detection."
+version = "1.2.0"
+description = "Complete autonomous driving stack: detection → multi-object tracking → 3D perception → end-to-end learning. Kalman filtering, trajectory prediction, safety-constrained policies, IMU/GPS fusion, GPU optimization."
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
