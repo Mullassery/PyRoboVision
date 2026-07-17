@@ -29,13 +29,15 @@ PyRoboVision provides autonomous driving perception and foundation model inferen
 - Uncertainty quantification — Covariance + confidence ellipses
 - **124 tests, 70% coverage, <50ms latency per frame**
 
-## Planned
+✅ **v1.5 (Sep 2026)** — 3D Perception
+- Monocular depth estimation — Edge detection + median filtering
+- 3D bounding boxes — Depth-to-3D conversion + point cloud-based
+- Occupancy grid — BEV representation from points/bboxes
+- LiDAR processing — Filtering, clustering, normal estimation
+- Depth-LiDAR fusion for multi-sensor accuracy
+- **64 tests, 88% coverage, real-time performance**
 
-📅 **v1.5 (Sep 2026)** — 3D Perception
-- 3D object detection
-- Depth estimation from monocular vision
-- Occupancy grid generation
-- LiDAR point cloud processing
+📅 **v2.0 (Oct 2026)** — End-to-End Learning
 
 📅 **v2.0 (Oct 2026)** — End-to-End Learning
 - Imitation learning from demonstrations
