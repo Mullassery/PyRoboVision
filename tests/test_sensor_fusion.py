@@ -1,276 +1,195 @@
-"""Tests for multimodal sensor fusion (RGB + depth + IMU)."""
-
-import numpy as np
-import pyarrow as pa
 import pytest
-
-import pyroboframes as prf
-from pyroboframes.dataframe import RoboticsDataFrame, TopicFrame
-from pyroboframes.sensor_fusion import (
-    MultimodalBatch,
-    MultimodalDataFrame,
-    SensorFusionConfig,
-    create_humanoid_config,
-)
+import numpy as np
+from pyrobovision.fusion.sensor_fusion import SensorFusionEngine, IMUData, GPSData
 
 
-def create_test_robotics_frame() -> RoboticsDataFrame:
-    """Create a test RoboticsDataFrame with RGB, depth, and IMU data."""
-    n_samples = 100
-    n_points = 1000
+class TestIMUData:
+    def test_initialization(self):
+        acc = np.array([0.1, 0.2, 9.8])
+        gyro = np.array([0.01, 0.02, 0.03])
 
-    # Create RGB camera topic
-    rgb_data = {
-        "log_time": np.arange(n_samples) * 33_333_333,  # ~30 Hz (ns)
-        "frame_id": np.zeros(n_samples),
-        "height": np.full(n_samples, 480),
-        "width": np.full(n_samples, 640),
-    }
-    rgb_table = pa.Table.from_pydict(rgb_data)
-    rgb_frame = TopicFrame("/camera/rgb", rgb_table)
+        imu = IMUData(timestamp=0.0, accelerometer=acc, gyroscope=gyro)
 
-    # Create depth topic (point clouds)
-    depth_times = np.arange(n_samples) * 33_333_333 + 16_666_666  # ~15 Hz, 50ms lag
-    # Simulate point cloud as [n_samples, n_points, 3]
-    depth_points = np.random.randn(n_samples, n_points, 3).astype(np.float32)
-    depth_data = {
-        "log_time": depth_times,
-        "points_x": depth_points[:, :, 0],
-        "points_y": depth_points[:, :, 1],
-        "points_z": depth_points[:, :, 2],
-    }
-    # Flatten for Parquet
-    depth_data_flat = {
-        "log_time": depth_times,
-        "num_points": np.full(n_samples, n_points),
-    }
-    depth_table = pa.Table.from_pydict(depth_data_flat)
-    depth_frame = TopicFrame("/depth/camera", depth_table)
-
-    # Create IMU topic
-    imu_times = np.arange(n_samples * 10) * 3_333_333  # ~300 Hz
-    n_imu = len(imu_times)
-    imu_data = {
-        "log_time": imu_times,
-        "accel_x": np.random.randn(n_imu) * 0.1,
-        "accel_y": np.random.randn(n_imu) * 0.1,
-        "accel_z": np.random.randn(n_imu) * 0.1 + 9.81,  # gravity
-        "gyro_x": np.random.randn(n_imu) * 0.01,
-        "gyro_y": np.random.randn(n_imu) * 0.01,
-        "gyro_z": np.random.randn(n_imu) * 0.01,
-    }
-    imu_table = pa.Table.from_pydict(imu_data)
-    imu_frame = TopicFrame("/imu/data", imu_table)
-
-    frames = {
-        "/camera/rgb": rgb_frame,
-        "/depth/camera": depth_frame,
-        "/imu/data": imu_frame,
-    }
-
-    return RoboticsDataFrame(frames)
+        assert imu.timestamp == 0.0
+        assert np.allclose(imu.accelerometer, acc)
+        assert np.allclose(imu.gyroscope, gyro)
 
 
-def test_sensor_fusion_config_creation():
-    """Test creating sensor fusion configuration."""
-    config = SensorFusionConfig(
-        reference_topic="/camera/rgb",
-        camera_topics=["/camera/rgb"],
-        depth_topics=["/depth/camera"],
-        imu_topics=["/imu/data"],
-    )
-    assert config.reference_topic == "/camera/rgb"
-    assert len(config.camera_topics) == 1
-    assert len(config.depth_topics) == 1
-    assert len(config.imu_topics) == 1
+class TestGPSData:
+    def test_initialization(self):
+        gps = GPSData(
+            timestamp=0.0,
+            latitude=37.7749,
+            longitude=-122.4194,
+            altitude=10.0,
+            speed=5.0,
+            heading=90.0,
+            accuracy=2.0,
+        )
+
+        assert gps.latitude == 37.7749
+        assert gps.accuracy == 2.0
 
 
-def test_humanoid_config():
-    """Test humanoid robot configuration."""
-    config = create_humanoid_config()
-    assert config.reference_topic == "/camera/front/rgb"
-    assert len(config.camera_topics) == 3  # head, front, wrist
-    assert len(config.depth_topics) == 1  # wrist
-    assert len(config.imu_topics) == 1  # shoulder
+class TestSensorFusionEngine:
+    def test_initialization(self):
+        engine = SensorFusionEngine(origin_lat=37.7749, origin_lon=-122.4194)
 
+        assert engine.origin_lat == 37.7749
+        assert np.allclose(engine.state.position, np.zeros(3))
+        assert np.allclose(engine.state.velocity, np.zeros(3))
 
-def test_auto_detect_topics():
-    """Test auto-detection of camera/depth/IMU topics."""
-    df = create_test_robotics_frame()
-    config = SensorFusionConfig()
-    config.auto_detect(df)
+    def test_gps_to_local(self):
+        engine = SensorFusionEngine(origin_lat=0.0, origin_lon=0.0, origin_alt=0.0)
 
-    assert any("camera" in t or "image" in t.lower() for t in config.camera_topics)
-    assert any("depth" in t or "point_cloud" in t for t in config.depth_topics)
-    assert any("imu" in t for t in config.imu_topics)
+        local_pos = engine._gps_to_local(0.01, 0.01, 10.0)
 
+        assert local_pos[2] == 10.0
+        assert abs(local_pos[0]) < 2000
+        assert abs(local_pos[1]) < 2000
 
-def test_multimodal_batch_creation():
-    """Test creating a multimodal batch."""
-    data = {
-        "log_time": np.arange(10),
-        "camera.rgb.frame": np.random.rand(10, 480, 640, 3),
-        "depth.camera.points": np.random.rand(10, 1000, 3),
-        "imu.data.accel_x": np.random.randn(10),
-    }
-    batch = MultimodalBatch(data)
+    def test_update_imu(self):
+        engine = SensorFusionEngine()
 
-    assert len(batch) == 10
-    assert len(batch.cameras) > 0
-    assert len(batch.depth_streams) > 0
-    assert len(batch.imu_streams) > 0
+        imu = IMUData(
+            timestamp=0.0,
+            accelerometer=np.array([0.0, 0.0, 9.8]),
+            gyroscope=np.array([0.0, 0.0, 0.0]),
+        )
 
+        state = engine.update_imu(imu)
 
-def test_multimodal_dataframe_creation():
-    """Test creating a multimodal dataframe."""
-    df = create_test_robotics_frame()
-    mdf = MultimodalDataFrame(df)
+        assert state is not None
+        assert state.position.shape == (3,)
 
-    assert mdf.df is df
-    assert mdf.config is not None
-    assert len(mdf.config.camera_topics) > 0 or len(mdf.config.depth_topics) > 0
+    def test_update_imu_sequence(self):
+        engine = SensorFusionEngine()
 
+        for i in range(5):
+            imu = IMUData(
+                timestamp=float(i) * 0.1,
+                accelerometer=np.array([1.0, 0.0, 9.8]),
+                gyroscope=np.array([0.0, 0.0, 0.0]),
+            )
+            state = engine.update_imu(imu)
 
-def test_align_multimodal():
-    """Test time-aligning multimodal sensors."""
-    df = create_test_robotics_frame()
-    mdf = MultimodalDataFrame(df)
-    batch = mdf.align_multimodal(reference_topic="/camera/rgb")
+        assert len(engine.fusion_history) == 5
+        assert state.velocity[0] > 0
 
-    assert isinstance(batch, MultimodalBatch)
-    assert "log_time" in batch._data
-    assert len(batch) > 0
+    def test_update_gps(self):
+        engine = SensorFusionEngine(origin_lat=0.0, origin_lon=0.0, origin_alt=0.0)
 
+        gps = GPSData(
+            timestamp=0.0,
+            latitude=0.0,
+            longitude=0.0,
+            altitude=10.0,
+            speed=5.0,
+            heading=90.0,
+            accuracy=2.0,
+        )
 
-def test_multimodal_batch_access():
-    """Test accessing data in multimodal batch."""
-    data = {
-        "log_time": np.arange(10),
-        "camera.rgb.data": np.ones((10, 3)),
-        "imu.accel.x": np.ones(10),
-    }
-    batch = MultimodalBatch(data)
+        state = engine.update_gps(gps)
 
-    assert "camera.rgb.data" in batch
-    assert "log_time" in batch
-    assert batch["camera.rgb.data"].shape == (10, 3)
+        assert state is not None
+        assert state.position[2] > 0
 
+    def test_gps_speed_update(self):
+        engine = SensorFusionEngine()
 
-def test_project_depth_to_image():
-    """Test projecting depth to image plane."""
-    df = create_test_robotics_frame()
-    mdf = MultimodalDataFrame(df)
-    batch = mdf.align_multimodal(reference_topic="/camera/rgb")
+        gps = GPSData(
+            timestamp=0.0,
+            latitude=0.0,
+            longitude=0.0,
+            altitude=0.0,
+            speed=10.0,
+            heading=0.0,
+            accuracy=1.0,
+        )
 
-    # Create mock calibration
-    calib = prf.CameraCalibration(
-        name="rgb",
-        fx=500.0,
-        fy=500.0,
-        cx=320.0,
-        cy=240.0,
-        width=640,
-        height=480,
-    )
+        state = engine.update_gps(gps)
 
-    calibrations = {"camera.rgb": calib}
-    enhanced = mdf.project_depth_to_image(batch, calibrations)
+        assert np.linalg.norm(state.velocity[:2]) > 0
 
-    assert isinstance(enhanced, MultimodalBatch)
+    def test_get_state_vector(self):
+        engine = SensorFusionEngine()
 
+        imu = IMUData(
+            timestamp=0.0,
+            accelerometer=np.array([0.0, 0.0, 9.8]),
+            gyroscope=np.array([0.0, 0.0, 0.0]),
+        )
+        engine.update_imu(imu)
 
-def test_fuse_imu_with_vision():
-    """Test IMU fusion with vision for motion compensation."""
-    df = create_test_robotics_frame()
-    mdf = MultimodalDataFrame(df)
-    batch = mdf.align_multimodal(reference_topic="/camera/rgb")
+        state_vector = engine.get_state_vector()
 
-    enhanced = mdf.fuse_imu_with_vision(batch)
-    assert isinstance(enhanced, MultimodalBatch)
+        assert state_vector.shape == (9,)
 
-    # Should add motion confidence and rotation magnitude
-    # (if IMU data was aligned)
+    def test_get_covariance(self):
+        engine = SensorFusionEngine()
 
+        cov = engine.get_covariance()
 
-def test_stack_batch_for_training():
-    """Test stacking multimodal batch for training."""
-    data = {
-        "log_time": np.arange(10),
-        "camera.rgb.frame": np.random.rand(10, 480, 640, 3),
-        "imu.accel_x": np.random.randn(10),
-    }
-    batch = MultimodalBatch(data)
-    mdf = MultimodalDataFrame(create_test_robotics_frame())
+        assert cov.shape == (9, 9)
+        assert np.all(np.isfinite(cov))
 
-    output = mdf.stack_batch_for_training(batch, stack_frames=1)
-    assert isinstance(output, dict)
-    assert "log_time" in output
+    def test_reset(self):
+        engine = SensorFusionEngine()
 
+        imu = IMUData(
+            timestamp=0.0,
+            accelerometer=np.array([0.0, 0.0, 9.8]),
+            gyroscope=np.array([0.0, 0.0, 0.0]),
+        )
+        engine.update_imu(imu)
 
-def test_multimodal_repr():
-    """Test string representations."""
-    batch = MultimodalBatch({"log_time": np.arange(10)})
-    assert "MultimodalBatch" in repr(batch)
+        assert len(engine.fusion_history) > 0
 
-    df = create_test_robotics_frame()
-    mdf = MultimodalDataFrame(df)
-    assert "MultimodalDataFrame" in repr(mdf)
+        engine.reset()
 
+        assert len(engine.fusion_history) == 0
+        assert np.allclose(engine.state.position, np.zeros(3))
 
-def test_tolerance_filtering():
-    """Test timestamp tolerance filtering in alignment."""
-    df = create_test_robotics_frame()
-    config = SensorFusionConfig(
-        reference_topic="/camera/rgb",
-        tolerance_ns=10_000_000,  # 10ms tight tolerance
-    )
-    mdf = MultimodalDataFrame(df, config)
+    def test_get_statistics(self):
+        engine = SensorFusionEngine()
 
-    batch = mdf.align_multimodal()
-    # With tight tolerance, some samples should be NaN where other sensors lag too much
-    assert isinstance(batch, MultimodalBatch)
+        imu = IMUData(
+            timestamp=0.0,
+            accelerometer=np.array([0.0, 0.0, 9.8]),
+            gyroscope=np.array([0.0, 0.0, 0.0]),
+        )
+        engine.update_imu(imu)
 
+        stats = engine.get_statistics()
 
-def test_missing_topic_handling():
-    """Test handling of missing topics."""
-    df = create_test_robotics_frame()
-    config = SensorFusionConfig(
-        reference_topic="/camera/rgb",
-        camera_topics=["/camera/nonexistent"],  # Doesn't exist
-    )
-    mdf = MultimodalDataFrame(df, config)
+        assert stats["imu_updates"] == 1
+        assert "position" in stats
+        assert "velocity" in stats
 
-    batch = mdf.align_multimodal()
-    assert isinstance(batch, MultimodalBatch)  # Should not crash
+    def test_multi_sensor_fusion(self):
+        engine = SensorFusionEngine()
 
+        for i in range(5):
+            imu = IMUData(
+                timestamp=float(i) * 0.1,
+                accelerometer=np.array([1.0, 0.0, 9.8]),
+                gyroscope=np.array([0.0, 0.0, 0.1]),
+            )
+            engine.update_imu(imu)
 
-def test_invalid_reference_topic():
-    """Test error handling for invalid reference topic."""
-    df = create_test_robotics_frame()
-    mdf = MultimodalDataFrame(df)
+            if i % 2 == 0:
+                gps = GPSData(
+                    timestamp=float(i) * 0.1,
+                    latitude=0.001 * i,
+                    longitude=0.0,
+                    altitude=10.0,
+                    speed=5.0,
+                    heading=0.0,
+                    accuracy=1.0,
+                )
+                engine.update_gps(gps)
 
-    with pytest.raises(KeyError):
-        mdf.align_multimodal(reference_topic="/nonexistent/topic")
+        stats = engine.get_statistics()
 
-
-def test_multimodal_batch_dict_interface():
-    """Test dict-like interface of MultimodalBatch."""
-    data = {
-        "log_time": np.arange(5),
-        "camera.rgb": np.ones((5, 3)),
-        "imu.accel": np.ones((5, 3)),
-    }
-    batch = MultimodalBatch(data)
-
-    # Test __getitem__
-    assert batch["log_time"].shape == (5,)
-
-    # Test __contains__
-    assert "camera.rgb" in batch
-    assert "nonexistent" not in batch
-
-    # Test keys()
-    assert "log_time" in batch.keys()
-
-    # Test len()
-    assert len(batch) == 5
+        assert stats["imu_updates"] == 5
+        assert stats["gps_updates"] == 3
