@@ -6,9 +6,11 @@
 [![Tests](https://img.shields.io/badge/tests-267%20passing-brightgreen)]()
 [![Coverage](https://img.shields.io/badge/coverage-82%25-green)]()
 
-**Complete autonomous driving stack: Detection → Tracking → 3D Perception → End-to-End Learning**
+**Vision model intelligence platform. Track, evaluate, and improve computer vision models with performance validation and best-model identification.**
 
-PyRoboVision combines **real-time multi-object tracking** (v1.2), **3D perception fusion** (v1.5), and **safety-constrained learning with GPU optimization** (v2.0) into a modular, production-ready framework. Built for robotics and autonomous vehicles.
+PyRoboVision combines **real-time multi-object tracking** (v1.2), **3D perception fusion** (v1.5), and **safety-constrained learning with GPU optimization** (v2.0) into a modular, production-ready framework. Built for robotics and autonomous vehicles with quality validation at every stage.
+
+**Architectural Role:** Owns vision model registry and performance tracking. Central repository for model performance, enables model selection based on quality + cost + latency tradeoffs. Part of ML operations foundation.
 
 **Key differentiator:** PyRoboVision bridges the gap between perception and learning in a single unified pipeline — tracking objects, predicting trajectories, estimating depth, fusing sensors, and training safe policies end-to-end. Modular design lets you swap components without retraining.
 
