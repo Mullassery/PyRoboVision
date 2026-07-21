@@ -1,4 +1,4 @@
-# PyRoboVision — Complete Autonomous Driving Stack (v1.2 → v2.0)
+# PyRoboVision — Complete Autonomous Driving Stack (v1.2  v2.0)
 
 [![PyPI](https://img.shields.io/pypi/v/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![Python](https://img.shields.io/pypi/pyversions/pyrobovision)](https://pypi.org/project/pyrobovision/)
@@ -42,7 +42,7 @@ PyRoboVision combines **real-time multi-object tracking** (v1.2), **3D perceptio
 - **Model optimization** — ONNX export, TensorRT compilation, int8/int16/float16 quantization, inference profiling
 
 ### v1.1: Foundation Models & Perception
-- **Cylindrical panoramic stitching** — 360° multi-camera fusion (Waymo, nuScenes)
+- **Cylindrical panoramic stitching** — 360 multi-camera fusion (Waymo, nuScenes)
 - **Advanced blending** — Laplacian pyramid + graph-cut seams
 - **Bird's-eye-view (BEV)** — 3D projection for autonomous perception
 - **GPU acceleration** — CuPy (NVIDIA), MLX (Apple Silicon), NumPy (CPU)
@@ -88,22 +88,22 @@ intent_predictor = IntentPredictor(lookahead_frames=30)
 
 # Process video frame-by-frame
 for frame_id in range(num_frames):
-    # Get detections from your detector (YOLO, SAM2, etc.)
-    detections = [
-        Detection(bbox=np.array([x, y, x+w, y+h]), confidence=0.95)
-        for x, y, w, h in detected_objects
-    ]
-    
-    # Track objects across frames
-    confirmed_tracks = tracker.update(detections)
-    
-    # Predict intent for each tracked object
-    for track in confirmed_tracks:
-        positions = np.array([d.bbox[:2] for _, d in track.detections])
-        velocities = np.diff(positions, axis=0)
-        
-        intent = intent_predictor.predict_intent(positions, velocities, ...)
-        print(f"Track {track.track_id}: {intent.intent.value} (confidence: {intent.confidence:.2f})")
+ # Get detections from your detector (YOLO, SAM2, etc.)
+ detections = [
+ Detection(bbox=np.array([x, y, x+w, y+h]), confidence=0.95)
+ for x, y, w, h in detected_objects
+ ]
+ 
+ # Track objects across frames
+ confirmed_tracks = tracker.update(detections)
+ 
+ # Predict intent for each tracked object
+ for track in confirmed_tracks:
+ positions = np.array([d.bbox[:2] for _, d in track.detections])
+ velocities = np.diff(positions, axis=0)
+ 
+ intent = intent_predictor.predict_intent(positions, velocities, ...)
+ print(f"Track {track.track_id}: {intent.intent.value} (confidence: {intent.confidence:.2f})")
 ```
 
 ### v1.5: 3D Perception with Depth-LiDAR Fusion
@@ -117,15 +117,15 @@ from pyrobovision.perception.occupancy import OccupancyGridBuilder
 estimator = DepthEstimator(model="midas")
 estimator.set_calibration(fx=500, fy=500, cx=320, cy=240)
 
-rgb_frame = ...  # Your camera frame
+rgb_frame = ... # Your camera frame
 depth_map = estimator.estimate_depth(rgb_frame)
 
 # Convert 2D detections to 3D bounding boxes
 converter = Box3DConverter()
 bbox_3d = converter.from_2d_bbox_and_depth(
-    bbox_2d=np.array([100, 100, 200, 200]),
-    depth_map=depth_map.data,
-    fx=500, fy=500, cx=320, cy=240
+ bbox_2d=np.array([100, 100, 200, 200]),
+ depth_map=depth_map.data,
+ fx=500, fy=500, cx=320, cy=240
 )
 
 # Generate occupancy grid for planning
@@ -151,15 +151,15 @@ imu_data = IMUData(timestamp=0.0, accelerometer=[0, 0, 9.8], gyroscope=[0, 0, 0]
 state = fusion_engine.update_imu(imu_data)
 
 gps_data = GPSData(latitude=37.7749, longitude=-122.4194, altitude=10.0,
-                   speed=5.0, heading=90.0, accuracy=2.0)
+ speed=5.0, heading=90.0, accuracy=2.0)
 state = fusion_engine.update_gps(gps_data)
 print(f"Fused position: {state.position}, uncertainty: {state.covariance}")
 
 # Collect expert demonstrations and train
 learner = ImitationLearner(obs_dim=8, action_dim=2)
 for episode in expert_trajectories:
-    for obs, action, next_obs, reward in episode:
-        learner.record_transition(obs, action, next_obs, reward, done=False)
+ for obs, action, next_obs, reward in episode:
+ learner.record_transition(obs, action, next_obs, reward, done=False)
 
 model = BehaviorCloningModel(obs_dim=8, action_dim=2)
 config = TrainingConfig(obs_dim=8, action_dim=2, num_epochs=10)
@@ -189,7 +189,7 @@ print(f"Inference latency: {stats['p95_latency_ms']:.2f}ms @ p95")
 from pyrobovision.automotive import CylindricalStitcher, get_waymo_layout
 from pyrobovision.foundation_models import MultiModalFusion
 
-# 360° panoramic stitching
+# 360 panoramic stitching
 layout = get_waymo_layout()
 stitcher = CylindricalStitcher(layout, blend_method="laplacian")
 
@@ -198,13 +198,13 @@ panorama = stitcher.stitch(frames)
 
 # Multi-modal scene understanding
 fusion = MultiModalFusion(
-    detection_prompt="car . pedestrian . cyclist",
-    device="mlx",
+ detection_prompt="car . pedestrian . cyclist",
+ device="mlx",
 )
 
 scene = fusion.understand(panorama)
 for obj in scene.objects:
-    print(f"{obj.object_class}: {obj.semantic_label}")
+ print(f"{obj.object_class}: {obj.semantic_label}")
 ```
 
 ---
@@ -215,29 +215,29 @@ for obj in scene.objects:
 
 ```
 PyRoboVision/
-├── automotive/          # v0.5 AV perception
-│   ├── stitching.py
-│   ├── blending.py
-│   ├── bev.py
-│   ├── perception_3d.py
-│   ├── tfrecord_utils.py
-│   ├── nuscenes_utils.py
-│   └── datasets.py
-│
-└── foundation_models/   # Phase 7
-    ├── sam3_segmentation.py
-    ├── clip_embeddings.py
-    ├── grounding_dino.py
-    └── multimodal_fusion.py
+ automotive/ # v0.5 AV perception
+ stitching.py
+ blending.py
+ bev.py
+ perception_3d.py
+ tfrecord_utils.py
+ nuscenes_utils.py
+ datasets.py
 
-↓ Depends on PyRoboFrames 1.1.0+ (dataloader)
+ foundation_models/ # Phase 7
+ sam3_segmentation.py
+ clip_embeddings.py
+ grounding_dino.py
+ multimodal_fusion.py
+
+ Depends on PyRoboFrames 1.1.0+ (dataloader)
 PyRoboFrames 1.1.0/
-├── RoboFrameDataset      # Load LeRobot, HDF5, NetCDF, RLDS
-├── ProprioceptiveLoader  # Load state/action only
-├── DataLoader            # Device selection + caching
-├── RemoteDataset         # S3/GCS streaming
-├── DatasetValidator      # Data quality checks
-└── [codec selection, quality scoring, distributed, ...]
+ RoboFrameDataset # Load LeRobot, HDF5, NetCDF, RLDS
+ ProprioceptiveLoader # Load state/action only
+ DataLoader # Device selection + caching
+ RemoteDataset # S3/GCS streaming
+ DatasetValidator # Data quality checks
+ [codec selection, quality scoring, distributed, ...]
 ```
 
 **Key design:** PyRoboVision handles perception; PyRoboFrames handles data loading.
@@ -250,33 +250,33 @@ immediately usable as input to PyRoboVision algorithms.
 
 | Version | Component | Feature | Status | Tests |
 |---------|-----------|---------|--------|-------|
-| **v1.1** | Perception | Panoramic stitching | ✅ | 10 |
-| **v1.1** | Perception | Laplacian blending | ✅ | 5 |
-| **v1.1** | Perception | BEV projection | ✅ | 5 |
-| **v1.1** | Perception | GPU acceleration | ✅ | 6 |
-| **v1.1** | Perception | Optical flow seam tracking | ✅ | 10 |
-| **v1.1** | Perception | Dataset loaders (Waymo/nuScenes/KITTI) | ✅ | 9 |
-| **v1.1** | Perception | LiDAR/Radar fusion | ✅ | 18 |
-| **v1.1** | Foundation Models | SAM3 segmentation | ✅ | 18 |
-| **v1.1** | Foundation Models | CLIP embeddings | ✅ | 25 |
-| **v1.1** | Foundation Models | Grounding DINO detection | ✅ | 26 |
-| **v1.1** | Foundation Models | Multi-modal fusion | ✅ | 17 |
-| **v1.2** | Tracking | Kalman filter + Hungarian MOT | ✅ | 22 |
-| **v1.2** | Prediction | Trajectory forecasting (CV/CA) | ✅ | 20 |
-| **v1.2** | Prediction | Uncertainty quantification | ✅ | 13 |
-| **v1.2** | Analysis | Behavioral classification (8-class) | ✅ | 13 |
-| **v1.2** | Analysis | Intent prediction (11-class) | ✅ | 15 |
-| **v1.5** | 3D Perception | Monocular depth estimation | ✅ | 7 |
-| **v1.5** | 3D Perception | 3D bounding box conversion | ✅ | 7 |
-| **v1.5** | 3D Perception | Occupancy grid representation | ✅ | 8 |
-| **v1.5** | 3D Perception | LiDAR point cloud processing | ✅ | 10 |
-| **v2.0** | Learning | Imitation learning framework | ✅ | 10 |
-| **v2.0** | Learning | Behavior cloning models | ✅ | 6 |
-| **v2.0** | Learning | Policy networks (Actor-Critic) | ✅ | 6 |
-| **v2.0** | Safety | Constraint validation | ✅ | 7 |
-| **v2.0** | Training | Training infrastructure | ✅ | 7 |
-| **v2.0** | Fusion | Sensor fusion (IMU/GPS Kalman) | ✅ | 12 |
-| **v2.0** | Fusion | Model optimization (ONNX/TensorRT) | ✅ | 10 |
+| **v1.1** | Perception | Panoramic stitching | | 10 |
+| **v1.1** | Perception | Laplacian blending | | 5 |
+| **v1.1** | Perception | BEV projection | | 5 |
+| **v1.1** | Perception | GPU acceleration | | 6 |
+| **v1.1** | Perception | Optical flow seam tracking | | 10 |
+| **v1.1** | Perception | Dataset loaders (Waymo/nuScenes/KITTI) | | 9 |
+| **v1.1** | Perception | LiDAR/Radar fusion | | 18 |
+| **v1.1** | Foundation Models | SAM3 segmentation | | 18 |
+| **v1.1** | Foundation Models | CLIP embeddings | | 25 |
+| **v1.1** | Foundation Models | Grounding DINO detection | | 26 |
+| **v1.1** | Foundation Models | Multi-modal fusion | | 17 |
+| **v1.2** | Tracking | Kalman filter + Hungarian MOT | | 22 |
+| **v1.2** | Prediction | Trajectory forecasting (CV/CA) | | 20 |
+| **v1.2** | Prediction | Uncertainty quantification | | 13 |
+| **v1.2** | Analysis | Behavioral classification (8-class) | | 13 |
+| **v1.2** | Analysis | Intent prediction (11-class) | | 15 |
+| **v1.5** | 3D Perception | Monocular depth estimation | | 7 |
+| **v1.5** | 3D Perception | 3D bounding box conversion | | 7 |
+| **v1.5** | 3D Perception | Occupancy grid representation | | 8 |
+| **v1.5** | 3D Perception | LiDAR point cloud processing | | 10 |
+| **v2.0** | Learning | Imitation learning framework | | 10 |
+| **v2.0** | Learning | Behavior cloning models | | 6 |
+| **v2.0** | Learning | Policy networks (Actor-Critic) | | 6 |
+| **v2.0** | Safety | Constraint validation | | 7 |
+| **v2.0** | Training | Training infrastructure | | 7 |
+| **v2.0** | Fusion | Sensor fusion (IMU/GPS Kalman) | | 12 |
+| **v2.0** | Fusion | Model optimization (ONNX/TensorRT) | | 10 |
 
 **Total: 267 tests, all passing (82% coverage)**
 
@@ -286,13 +286,13 @@ immediately usable as input to PyRoboVision algorithms.
 
 ### Key Differentiators
 
-#### 1. **Unified Perception → Learning Pipeline** (Unique)
+#### 1. **Unified Perception  Learning Pipeline** (Unique)
 ```
-Detection (YOLO/SAM2) → Tracking (MOT) → Prediction (Kalman) → Learning (Imitation)
+Detection (YOLO/SAM2)  Tracking (MOT)  Prediction (Kalman)  Learning (Imitation)
 ```
 Unlike detection-only libraries, PyRoboVision combines the full pipeline into pluggable modules:
 - Swap detectors without retraining tracking
-- Add learning without touching perception  
+- Add learning without touching perception 
 - Consistent object identity across frames enables trajectory prediction and intent forecasting
 
 #### 2. **Real-Time Multi-Object Tracking <50ms** (Production-Grade)
@@ -304,7 +304,7 @@ Unlike detection-only libraries, PyRoboVision combines the full pipeline into pl
 **Why it matters:** Frame-by-frame processing loses object identity. PyRoboVision maintains persistent tracks, enabling behavioral pattern recognition and intent forecasting ("vehicle will turn left in 3 seconds").
 
 #### 3. **Monocular Depth Fusion** (Cost-Effective 3D Perception)
-- Single RGB image → depth map via edge detection + median filtering
+- Single RGB image  depth map via edge detection + median filtering
 - LiDAR fusion via Kalman gain weighting
 - 3D bounding box generation with PCA-based orientation
 - Occupancy grid representation for path planning
@@ -314,26 +314,26 @@ Unlike detection-only libraries, PyRoboVision combines the full pipeline into pl
 Built-in constraint validation prevents unsafe actions at inference time:
 ```python
 validator = SafetyValidator(
-    max_acceleration=5.0,      # m/s²
-    max_steering=45.0,         # degrees
-    min_distance=1.0           # meters to nearest obstacle
+ max_acceleration=5.0, # m/s
+ max_steering=45.0, # degrees
+ min_distance=1.0 # meters to nearest obstacle
 )
 action = policy.sample_action(obs)
-safe_action = validator.correct_action(action, state)  # Auto-corrects unsafe actions
+safe_action = validator.correct_action(action, state) # Auto-corrects unsafe actions
 ```
 - Safety overhead: <2% latency cost
 - Pluggable constraint framework
-- Real-time validation (<100μs)
+- Real-time validation (<100s)
 
 #### 5. **Minimal Codebase, Maximum Clarity**
-- 1,950 LOC across 8 core modules (v1.2 → v2.0)
+- 1,950 LOC across 8 core modules (v1.2  v2.0)
 - 245 tests with 81% coverage
 - New contributor ramp-up: <4 hours
 - Fully documented with examples
 
 #### 6. **Multi-Sensor IMU/GPS Fusion**
 - Kalman filter-based sensor fusion
-- Automatic WGS84 → ENU coordinate transformation
+- Automatic WGS84  ENU coordinate transformation
 - Euler angle rotation for world-frame acceleration
 - State + covariance tracking for uncertainty quantification
 
@@ -347,21 +347,21 @@ safe_action = validator.correct_action(action, state)  # Auto-corrects unsafe ac
 
 ### When to Use PyRoboVision
 
-#### ✅ Good Fit
+#### Good Fit
 - Robotics research & AV perception prototypes
 - Dataset analysis tools (Waymo, nuScenes, KITTI)
 - Tracking + learning experiments (end-to-end pipeline)
 - Educational projects (learn MOT, 3D perception, RL)
 - Production systems <100 vehicles (modular, debuggable)
 
-#### ⚠️ Consider Larger Frameworks Instead
+#### Consider Larger Frameworks Instead
 - Deploying to large fleets (>100 vehicles)
 - Need production support + SLA
 - Multi-sensor fusion beyond vision + LiDAR
 - Existing localization/planning stack
 - Large team (10+ engineers)
 
-#### ❌ Not Recommended
+#### Not Recommended
 - Pure detection benchmarking (use specialized detection frameworks)
 - Simulation-only projects (use CARLA or similar)
 - Just need mid-level path planning (use ROS 2 or similar)
@@ -372,16 +372,16 @@ safe_action = validator.correct_action(action, state)  # Auto-corrects unsafe ac
 
 ```
 Perception Stack:
-  Detection (YOLO/SAM2) → Tracking (MOT) → 3D Perception → Learning
-  
+ Detection (YOLO/SAM2)  Tracking (MOT)  3D Perception  Learning
+ 
 Modules:
-  • tracking/ (Kalman filter, Hungarian algorithm, MOT tracker)
-  • prediction/ (Trajectory forecasting, uncertainty estimation)
-  • behavior/ (Motion/behavior classification, pattern recognition)
-  • intent/ (11-class intent prediction, collision detection)
-  • perception/ (Depth estimation, 3D BBox, LiDAR, occupancy grid)
-  • learning/ (Imitation learning, behavior cloning, policy networks)
-  • fusion/ (IMU/GPS sensor fusion, model optimization)
+  tracking/ (Kalman filter, Hungarian algorithm, MOT tracker)
+  prediction/ (Trajectory forecasting, uncertainty estimation)
+  behavior/ (Motion/behavior classification, pattern recognition)
+  intent/ (11-class intent prediction, collision detection)
+  perception/ (Depth estimation, 3D BBox, LiDAR, occupancy grid)
+  learning/ (Imitation learning, behavior cloning, policy networks)
+  fusion/ (IMU/GPS sensor fusion, model optimization)
 ```
 
 **Complete Stack Performance:**
@@ -399,13 +399,13 @@ Modules:
 ## Use Cases
 
 ### Autonomous Vehicles (v1.2-v2.0)
-- **Real-time perception stack:** Detection → Tracking → Prediction → Learning
+- **Real-time perception stack:** Detection  Tracking  Prediction  Learning
 - **Dataset analysis:** Understand Waymo, nuScenes, KITTI with end-to-end pipeline
 - **Safety-critical systems:** Train and validate learned driving policies
-- **Prototype to production:** Start with research-grade (PyRoboVision) → Graduate to Autoware/Apollo
+- **Prototype to production:** Start with research-grade (PyRoboVision)  Graduate to Autoware/Apollo
 
 ### Mobile Manipulation (v1.5-v2.0)
-- **Egocentric perception:** 360° field-of-view from mobile manipulator
+- **Egocentric perception:** 360 field-of-view from mobile manipulator
 - **Real-time object tracking:** Follow dynamic objects during pick-and-place
 - **Learning from demonstration:** Imitate expert manipulation policies
 - **Safety validation:** Ensure learned controllers respect joint/force limits
@@ -461,7 +461,7 @@ For security issues, see [SECURITY.md](./SECURITY.md).
 
 ## License
 
-MIT (same as PyRoboFrames) — © Georgi Mammen Mullassery
+MIT (same as PyRoboFrames) —  Georgi Mammen Mullassery
 
 ---
 
@@ -469,9 +469,9 @@ MIT (same as PyRoboFrames) — © Georgi Mammen Mullassery
 
 ```bibtex
 @software{mullassery2025pyrobovision,
-  title={PyRoboVision: Advanced perception and vision-language models for robotics},
-  author={Mullassery, Georgi},
-  url={https://github.com/Mullassery/PyRoboVision},
-  year={2025}
+ title={PyRoboVision: Advanced perception and vision-language models for robotics},
+ author={Mullassery, Georgi},
+ url={https://github.com/Mullassery/PyRoboVision},
+ year={2025}
 }
 ```
