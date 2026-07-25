@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pyrobovision"
 version = "1.2.1"
-description = "Complete autonomous driving stack: detection → multi-object tracking → 3D perception → end-to-end learning. Kalman filtering, trajectory prediction, safety-constrained policies, IMU/GPS fusion, GPU optimization."
+description = "Autonomous driving perception stack. Detection, multi-object tracking, 3D perception, end-to-end learning. Kalman filtering, trajectory prediction, GPU optimization, safety-constrained policies."
 readme = "README.md"
 
 authors = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
