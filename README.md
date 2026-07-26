@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![Python](https://img.shields.io/pypi/pyversions/pyrobovision)](https://pypi.org/project/pyrobovision/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE)
 [![Tests](https://img.shields.io/badge/tests-267%20passing-brightgreen)]()
 [![Coverage](https://img.shields.io/badge/coverage-82%25-green)]()
 
@@ -56,14 +56,14 @@ PyRoboVision combines **real-time multi-object tracking** (v1.2), **3D perceptio
 ## Installation
 
 ```bash
-# Requires PyRoboFrames 1.1.0+
-pip install "pyroboframes>=1.1.0" pyrobovision
+# Requires PyRoboFrames 1.3.0+
+pip install "pyroboframes>=1.3.0" pyrobovision
 
 # With NVIDIA GPU support
-pip install "pyroboframes>=1.1.0" "pyrobovision[cuda]"
+pip install "pyroboframes>=1.3.0" "pyrobovision[cuda]"
 
 # With Apple Silicon (MLX)
-pip install "pyroboframes>=1.1.0" "pyrobovision[mlx]"
+pip install "pyroboframes>=1.3.0" "pyrobovision[mlx]"
 
 # From source
 git clone https://github.com/Mullassery/PyRoboVision.git
@@ -230,8 +230,8 @@ PyRoboVision/
  grounding_dino.py
  multimodal_fusion.py
 
- Depends on PyRoboFrames 1.1.0+ (dataloader)
-PyRoboFrames 1.1.0/
+ Depends on PyRoboFrames 1.3.0+ (dataloader)
+PyRoboFrames 1.3.0/
  RoboFrameDataset # Load LeRobot, HDF5, NetCDF, RLDS
  ProprioceptiveLoader # Load state/action only
  DataLoader # Device selection + caching
@@ -426,7 +426,7 @@ Modules:
 
 ## Related Projects
 
-- **[PyRoboFrames 1.1.0](https://github.com/Mullassery/PyRoboFrames)** — Fast ML dataloader (core dependency): LeRobot, RLDS, HDF5, NetCDF, S3/GCS, Ray
+- **[PyRoboFrames 1.3.0](https://github.com/Mullassery/PyRoboFrames)** — Fast ML dataloader (core dependency): LeRobot, RLDS, HDF5, NetCDF, S3/GCS, Ray
 - **[LeRobot](https://github.com/huggingface/lerobot)** — HuggingFace robotics datasets
 - **[Open X-Embodiment](https://robotics-transformer-x.github.io/)** — Cross-embodiment robotics datasets
 - **[Segment Anything 3 (SAM3)](https://github.com/facebookresearch/segment-anything-3)** — Instance segmentation
@@ -461,7 +461,7 @@ For security issues, see [SECURITY.md](./SECURITY.md).
 
 ## License
 
-MIT (same as PyRoboFrames) —  Georgi Mammen Mullassery
+Proprietary (same as PyRoboFrames) —  Georgi Mammen Mullassery
 
 ---
 
