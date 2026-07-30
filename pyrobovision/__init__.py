@@ -30,14 +30,19 @@ References:
 
 from typing import Final
 
-__version__: Final[str] = "1.0.0"
+__version__: Final[str] = "2.0.0"
 __author__: Final[str] = "Georgi Mammen Mullassery"
 __email__: Final[str] = "mullassery@gmail.com"
 __license__: Final[str] = "MIT"
+
+# MCP 2.0 Support (v2.0.0+) — Autonomous driving perception tools
+from ._mcp_connector import PerceptionEngine
 
 # Lazy imports of submodules to avoid heavy dependencies until needed
 __all__: Final[list[str]] = [
     "automotive",
     "foundation_models",
     "compute",
+    # MCP 2.0 (v2.0.0+)
+    "PerceptionEngine",
 ]

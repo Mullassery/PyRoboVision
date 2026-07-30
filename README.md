@@ -1,4 +1,4 @@
-# PyRoboVision — Complete Autonomous Driving Stack (v1.2  v2.0)
+# PyRoboVision — Complete Autonomous Driving Stack (v2.0.0)
 
 [![PyPI](https://img.shields.io/pypi/v/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![Python](https://img.shields.io/pypi/pyversions/pyrobovision)](https://pypi.org/project/pyrobovision/)
@@ -206,6 +206,47 @@ scene = fusion.understand(panorama)
 for obj in scene.objects:
  print(f"{obj.object_class}: {obj.semantic_label}")
 ```
+
+---
+
+## MCP 2.0: AI-Native Perception Tools
+
+PyRoboVision v2.0.0 includes **14 MCP (Model Context Protocol) tools** for autonomous driving perception, enabling AI agents to programmatically access vision algorithms via a standardized interface.
+
+### MCP Tools (Port 8783)
+
+| Tool | Purpose |
+|------|---------|
+| `embed_frames_clip` | CLIP vision-language embeddings for scene understanding |
+| `segment_frames_sam2` | SAM2 foundation model segmentation |
+| `detect_objects_grounding_dino` | Open-vocabulary object detection with text prompts |
+| `stitch_panorama` | Multi-camera panoramic stitching (360 FoV) |
+| `project_bev` | Bird's-eye-view projection for autonomous planning |
+| `fuse_lidar_camera` | Multi-modal LiDAR + camera sensor fusion |
+| `detect_3d_objects` | 3D object detection from fused sensor data |
+| `panoptic_segmentation` | Semantic + instance segmentation |
+| `calibrate_cameras` | Multi-camera rig calibration (intrinsic/extrinsic) |
+| `select_hardware_device` | Hardware acceleration selection (CUDA/MLX/CPU) |
+| `benchmark_inference` | Foundation model performance benchmarking |
+| `track_objects_kalman` | Multi-object tracking with Kalman filtering |
+| `predict_trajectory` | Trajectory prediction (Linear/CTRV/LSTM/Transformer) |
+| `export_model_onnx` | Model export for production deployment |
+
+### Quick Start with MCP
+
+```python
+from pyrobovision import PerceptionEngine
+
+# Initialize with MCP 2.0 support
+engine = PerceptionEngine()
+mcp_url = engine.start_mcp_connector(port=8783)
+
+# Use via Claude MCP or other AI agents
+print(f"MCP 2.0 endpoint: {mcp_url}")
+# http://localhost:8783/mcp
+```
+
+For full examples, see [examples/mcp_perception.py](./examples/mcp_perception.py).
 
 ---
 
