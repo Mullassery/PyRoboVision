@@ -97,7 +97,10 @@ Changelog = "https://github.com/Mullassery/PyRoboVision/releases"
 Discussions = "https://github.com/Mullassery/PyRoboVision/discussions"
 
 [tool.setuptools]
-packages = ["pyrobovision"]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.setuptools.package-data]
 pyrobovision = ["py.typed"]
