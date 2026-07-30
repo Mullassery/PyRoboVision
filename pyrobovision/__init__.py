@@ -33,7 +33,7 @@ from typing import Final
 __version__: Final[str] = "2.0.0"
 __author__: Final[str] = "Georgi Mammen Mullassery"
 __email__: Final[str] = "mullassery@gmail.com"
-__license__: Final[str] = "MIT"
+__license__: Final[str] = "Proprietary"
 
 # MCP 2.0 Support (v2.0.0+) — Autonomous driving perception tools
 from ._mcp_connector import PerceptionEngine

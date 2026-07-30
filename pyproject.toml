@@ -7,7 +7,7 @@ name = "pyrobovision"
 version = "2.0.0"
 description = "Complete autonomous driving stack: detection → multi-object tracking → 3D perception → end-to-end learning. Kalman filtering, trajectory prediction, safety-constrained policies, IMU/GPS fusion, GPU optimization."
 readme = "README.md"
-license = { text = "MIT" }
+license = { text = "Proprietary" }
 authors = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
 maintainers = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
 keywords = [
@@ -40,7 +40,7 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
+    "License :: Other/Proprietary License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
