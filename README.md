@@ -1,4 +1,6 @@
-# PyRoboVision — Complete Autonomous Driving Stack (v2.0.0)
+# PyRoboVision
+
+**Perception stack for autonomous robots and vehicles. Track, detect, and understand the world.**
 
 [![PyPI](https://img.shields.io/pypi/v/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![Python](https://img.shields.io/pypi/pyversions/pyrobovision)](https://pypi.org/project/pyrobovision/)
@@ -6,13 +8,49 @@
 [![Tests](https://img.shields.io/badge/tests-267%20passing-brightgreen)]()
 [![Coverage](https://img.shields.io/badge/coverage-82%25-green)]()
 
-**Vision model intelligence platform. Track, evaluate, and improve computer vision models with performance validation and best-model identification.**
+Real-time multi-object tracking, 3D perception fusion, and safety-constrained learning. Build robots that understand what they see.
 
-PyRoboVision combines **real-time multi-object tracking** (v1.2), **3D perception fusion** (v1.5), and **safety-constrained learning with GPU optimization** (v2.0) into a modular, production-ready framework. Built for robotics and autonomous vehicles with quality validation at every stage.
+[![PyPI](https://img.shields.io/pypi/v/pyrobovision)](https://pypi.org/project/pyrobovision)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org)
+[![Tests: 267 Passing](https://img.shields.io/badge/tests-267%20passing-success)](./tests)
+[![Coverage: 82%](https://img.shields.io/badge/coverage-82%25-green)]()
 
-**Architectural Role:** Owns vision model registry and performance tracking. Central repository for model performance, enables model selection based on quality + cost + latency tradeoffs. Part of ML operations foundation.
+---
 
-**Key differentiator:** PyRoboVision bridges the gap between perception and learning in a single unified pipeline — tracking objects, predicting trajectories, estimating depth, fusing sensors, and training safe policies end-to-end. Modular design lets you swap components without retraining.
+## 30-Second Start
+
+```python
+from pyrobovision import Vision
+
+# Create perception pipeline
+vision = Vision(camera_feed="camera_0")
+
+# Track objects in real-time
+while True:
+    frame = vision.get_frame()
+    objects = vision.track(frame)
+    
+    for obj in objects:
+        print(f"{obj.class_name} at {obj.position_3d}")
+        print(f"  Trajectory: {obj.velocity}")
+```
+
+---
+
+## Why PyRoboVision?
+
+**The Problem:**
+- Robots need 360° perception, not just forward cameras
+- Multi-sensor fusion is complex (RGB + Depth + Lidar + Thermal)
+- Tracking across camera transitions fails
+- No connection between what robots see and what they do
+
+**The Solution:**
+- Multi-object tracking (MOT) with Kalman + Hungarian algorithm
+- 3D perception fusion (monocular depth + LiDAR)
+- Trajectory prediction with uncertainty
+- Behavior classification and intent prediction
+- End-to-end learning (from perception to policy)
 
 ---
 
