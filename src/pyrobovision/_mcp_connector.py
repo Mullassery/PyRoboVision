@@ -46,7 +46,7 @@ except ImportError:
                 try:
                     self.dab_process.terminate()
                     self.dab_process.wait(timeout=5)
-                except:
+                except (subprocess.TimeoutExpired, OSError):
                     pass
                 self._ready = False
 
