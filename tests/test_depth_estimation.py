@@ -102,15 +102,65 @@ class TestDepthMap:
 
 
 class TestDepthEstimator:
-    def test_initialization(self):
-        estimator = DepthEstimator(
-            model="midas",
-            min_depth=0.1,
-            max_depth=100.0,
-        )
+    def test_default_model_is_heuristic(self):
+        """Default backend requires no extra (torch) dependency and is
+        clearly labeled as a placeholder, not a real depth model."""
+        estimator = DepthEstimator(min_depth=0.1, max_depth=100.0)
 
-        assert estimator.model == "midas"
+        assert estimator.model == "heuristic"
         assert estimator.min_depth == 0.1
+
+    def test_invalid_model_rejected(self):
+        with pytest.raises(ValueError):
+            DepthEstimator(model="not-a-real-model")
+
+    def test_midas_missing_torch_raises_clear_actionable_error(self, monkeypatch):
+        """When torch isn't importable, model='midas' must fail loudly with
+        install instructions — never silently fall back to the heuristic
+        under the 'midas' label (that was the original bug)."""
+        import builtins
+
+        real_import = builtins.__import__
+
+        def _blocked_import(name, *args, **kwargs):
+            if name == "torch":
+                raise ImportError("simulated: torch not installed")
+            return real_import(name, *args, **kwargs)
+
+        monkeypatch.setattr(builtins, "__import__", _blocked_import)
+
+        estimator = DepthEstimator(model="midas")
+        image = np.random.randint(0, 255, (64, 64, 3), dtype=np.uint8)
+
+        with pytest.raises(ImportError, match="pyrobovision\\[depth\\]"):
+            estimator.estimate_depth(image)
+
+    def test_midas_real_inference_sanity(self):
+        """End-to-end sanity check against the real, pretrained MiDaS_small
+        model (downloaded via torch.hub on first use). Skipped when torch
+        isn't installed, or if the one-time weight download can't complete
+        (e.g. no network access) — this keeps default CI (which doesn't
+        install the optional 'depth' extra) fast and offline-safe, while
+        still giving a real correctness check wherever torch + network are
+        available.
+        """
+        pytest.importorskip("torch", reason="model='midas' requires torch")
+
+        estimator = DepthEstimator(model="midas")
+        image = np.random.randint(0, 255, (120, 160, 3), dtype=np.uint8)
+
+        try:
+            depth_map = estimator.estimate_depth(image)
+        except Exception as exc:  # pragma: no cover - environment-dependent
+            pytest.skip(f"MiDaS weight download/inference unavailable: {exc}")
+
+        assert depth_map.data.shape == (120, 160)
+        assert depth_map.min_depth <= depth_map.data.min()
+        assert depth_map.data.max() <= depth_map.max_depth
+        # A real model's output should vary across a random image, not be a
+        # single constant value (which is what the old fake heuristic could
+        # degenerate to on some inputs).
+        assert depth_map.data.std() > 0
 
     def test_set_calibration(self):
         estimator = DepthEstimator()
@@ -120,7 +170,7 @@ class TestDepthEstimator:
         assert estimator.calibration_matrix.shape == (3, 3)
 
     def test_estimate_depth_rgb(self):
-        estimator = DepthEstimator()
+        estimator = DepthEstimator(model="heuristic")
 
         image = np.random.randint(0, 255, (480, 640, 3), dtype=np.uint8)
 
@@ -131,7 +181,7 @@ class TestDepthEstimator:
         assert depth_map.data.max() <= depth_map.max_depth
 
     def test_estimate_depth_grayscale(self):
-        estimator = DepthEstimator()
+        estimator = DepthEstimator(model="heuristic")
 
         image = np.random.rand(480, 640).astype(np.float32)
 
@@ -140,7 +190,7 @@ class TestDepthEstimator:
         assert depth_map.data.shape == (480, 640)
 
     def test_estimate_uncertainty(self):
-        estimator = DepthEstimator()
+        estimator = DepthEstimator(model="heuristic")
 
         image = np.random.rand(100, 100).astype(np.float32)
         depth_map = estimator.estimate_depth(image)
@@ -151,7 +201,7 @@ class TestDepthEstimator:
         assert np.all(uncertainty >= 0)
 
     def test_fuse_with_lidar(self):
-        estimator = DepthEstimator()
+        estimator = DepthEstimator(model="heuristic")
         estimator.set_calibration(fx=500, fy=500, cx=320, cy=240)
 
         depth_data = np.ones((480, 640)) * 5.0
