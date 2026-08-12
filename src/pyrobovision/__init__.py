@@ -1,30 +1,38 @@
-"""PyRoboVision: Autonomous driving perception and foundation models.
+"""PyRoboVision: Multi-object tracking and trajectory prediction toolkit.
 
-A pure Python library for autonomous driving perception algorithms and foundation model
-inference, built on PyRoboFrames for efficient multi-camera video loading and processing.
+A pure Python library (NumPy + SciPy only) built around a real, tested
+multi-object tracking core: Kalman filter state estimation + Hungarian
+algorithm association, plus constant-velocity/acceleration trajectory
+prediction with uncertainty quantification. It also includes supporting
+utilities for 3D perception (depth, LiDAR, occupancy grids), behavior/intent
+classification, and simple imitation-learning/safety-constraint building
+blocks.
 
-Modules:
-    perception: 3D object detection, depth estimation, LiDAR processing
-    tracking: Multi-object tracking with Kalman filtering
-    prediction: Trajectory prediction and uncertainty estimation
-    learning: Imitation learning, behavior cloning, safety-constrained policies
-    fusion: Sensor fusion (IMU/GPS), model optimization
-    behavior: Behavior analysis and pattern recognition
-    intent: Intent prediction from motion
+What's real and tested here:
+    tracking:   Multi-object tracking (Kalman filter + Hungarian association)
+    prediction: Trajectory forecasting (CV/CA models) + uncertainty
+    perception: Depth estimation (real MiDaS via optional torch dependency,
+                or a clearly-labeled non-neural placeholder heuristic),
+                3D bbox conversion, LiDAR point-cloud utilities, occupancy grids
+    behavior / intent: Rule-based motion classification and intent heuristics
+    learning / fusion: Imitation learning, behavior cloning, safety
+                constraint validation, and IMU/GPS sensor fusion utilities
 
-Requirements:
-    - PyRoboFrames >= 1.1.0 for data loading
-    - CUDA-enabled PyTorch OR MLX on Apple Silicon OR CPU
+What this is NOT (be aware before relying on it for those things):
+    - There is no object detector included (no YOLO/SAM/etc). You bring your
+      own detections (bounding boxes) into the tracker.
+    - No GPU-accelerated inference pipeline, no foundation-model (CLIP/SAM/
+      Grounding DINO) integration.
+    - Not a certified or safety-verified autonomous driving stack.
 
-Performance:
-    - Autonomous driving: 30 FPS @ 1080p on H100 GPU
-    - Perception: 60 FPS @ 720p 3D detection on RTX 4090
-    - Apple Silicon: Native MLX acceleration (ANE + GPU)
+Only NumPy and SciPy are required to import this package. PyTorch is an
+optional extra (`pip install "pyrobovision[depth]"`) needed only for real
+MiDaS depth inference and ONNX/TensorRT model export utilities.
 """
 
 from typing import Final
 
-__version__: Final[str] = "2.1.0"
+__version__: Final[str] = "3.0.0"
 __author__: Final[str] = "Georgi Mammen Mullassery"
 __email__: Final[str] = "mullassery@gmail.com"
 __license__: Final[str] = "Proprietary"
@@ -93,9 +101,6 @@ from .behavior import (
     MotionPattern,
 )
 
-# MCP 2.0 Support (v2.1.0+) — Autonomous driving perception tools
-from ._mcp_connector import PerceptionEngine
-
 __all__: Final[list[str]] = [
     # Perception
     "DepthEstimator",
@@ -141,6 +146,4 @@ __all__: Final[list[str]] = [
     "BehaviorAnalyzer",
     "BehaviorPattern",
     "MotionPattern",
-    # MCP
-    "PerceptionEngine",
 ]

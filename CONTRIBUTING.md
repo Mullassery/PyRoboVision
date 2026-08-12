@@ -1,55 +1,66 @@
 # Contributing to PyRoboVision
 
-Thanks for your interest! PyRoboVision is a pure Python library focused on autonomous driving perception and vision-language foundation models for robotics.
+Thanks for your interest! PyRoboVision is a pure Python (NumPy + SciPy) multi-object
+tracking and trajectory-prediction library, with supporting utilities for 3D
+perception, behavior/intent classification, and simple imitation learning. See the
+README for an honest breakdown of what's real vs. experimental.
 
 ## Project layout
 
 ```
-pyrobovision/
-├── automotive/         Autonomous driving perception (stitching, BEV, 3D fusion, loaders)
-├── foundation_models/  Vision-language models (SAM3, CLIP, Grounding DINO, multi-modal fusion)
-└── utils/              Shared utilities
+src/pyrobovision/
+├── tracking/     Kalman filter + Hungarian-algorithm multi-object tracking (the core)
+├── prediction/   Trajectory forecasting (constant velocity/acceleration) + uncertainty
+├── perception/   Depth estimation (real MiDaS via optional torch, or a placeholder
+│                 heuristic), 3D bbox conversion, LiDAR utilities, occupancy grids
+├── behavior/     Rule-based motion/behavior classification
+├── intent/       Rule-based intent prediction
+├── learning/     Imitation learning, behavior cloning, safety constraint validation
+└── fusion/       IMU/GPS sensor fusion, ONNX export utilities (optional torch)
 
-tests/                  Integration tests for all modules
-examples/               Real-world usage examples
+tests/            Tests for every module above (pytest)
+examples/         Usage examples
 ```
-
-Read [`ARCHITECTURE.md`](./ARCHITECTURE.md) first — it explains the design and key decisions.
 
 ## Dev setup
 
 ```bash
-# Create a virtual environment
 python3 -m venv venv
 source venv/bin/activate
 
 # Install in editable mode with dev dependencies
-pip install -e ".[dev,cuda,mlx]"
+pip install -e ".[dev]"
+
+# Optional: real MiDaS depth backend / ONNX export utilities
+pip install -e ".[dev,depth,onnx]"
 
 # Run tests
-pytest -v
+pytest tests/ -v
 ```
 
 **Requirements:**
-- Python ≥ 3.10
-- PyTorch 2.0+ (CPU or CUDA)
-- For NVIDIA GPU: CuPy 12.0+
-- For Apple Silicon: MLX 0.0.13+
+- Python >= 3.10
+- NumPy, SciPy (installed automatically — that's all the core package needs)
+- PyTorch >= 2.6 only if you want `DepthEstimator(model="midas")` or the
+  ONNX export helpers in `pyrobovision.fusion.optimization`
 
 ## Before opening a PR
 
-- `black pyrobovision/ tests/` and `isort pyrobovision/ tests/`
-- `mypy pyrobovision/` and `ruff check pyrobovision/`
-- `pytest -v` passes with coverage
-- New behavior has tests
-- Update `CHANGELOG.md` (or create one if adding major features)
+- `black src/ tests/` and `isort src/ tests/`
+- `mypy src/pyrobovision/` and `ruff check src/pyrobovision/`
+- `pytest tests/ -v` passes (with coverage: `pytest tests/ -v --cov=pyrobovision`)
+- New behavior has tests — no exceptions for the tracking/prediction core
+- Claims in docstrings/README should be checked against what the code actually does;
+  this project has previously shipped inaccurate performance/feature claims and we're
+  trying hard not to repeat that
 
 ## High-impact areas
 
-- **Foundation model inference optimizations** — inference speed on ONNX / TensorRT backends
-- **Real-time panoramic stitching** — stream-friendly seam tracking and blending
-- **Occupancy grid mapping** — 3D sensor fusion for autonomous systems
-- **Multi-modal scene understanding** — tighter CLIP + Grounding DINO integration
+- **Real object detection integration** — the tracker takes detections as input but
+  ships with no detector; examples/adapters for common detectors (YOLO, etc.) would help
+- **Association robustness** — appearance features, better gating for fast-moving/occluded objects
+- **Depth**: broader MiDaS variants, or a metric-scale calibration path
+- **Trajectory prediction**: learned (not just constant velocity/acceleration) models
 
 ## License
 

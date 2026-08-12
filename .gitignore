@@ -26,15 +26,16 @@ __pycache__/
 dist/
 build/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
 
 # Virtual environments
 venv/
 env/
 .venv
-
-# Rust
-target/
-Cargo.lock
 
 # Temp files
 *.tmp

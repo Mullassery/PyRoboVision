@@ -1,192 +1,41 @@
-# PyRoboVision v2.0.0: Task Roadmap
+# PyRoboVision Roadmap
 
-## Current Status: Production Ready
+**Current version:** 3.0.0
 
-**Version:** 2.0.0  
-**Status:** Production Ready (MCP 2.0 Platform member)  
-**Last Updated:** 2026-07-31  
+## What's done and real
 
-## Pending Tasks by Priority
+- Multi-object tracking — Kalman filter + Hungarian algorithm association (`tracking/`)
+- Occlusion handling — tracks survive and predict through missed-detection gaps, and
+  re-associate on reacquisition (tested in `tests/test_occlusion.py`)
+- Trajectory prediction — constant velocity/acceleration models with uncertainty
+- Behavior/intent classification — rule-based, not learned
+- 3D perception utilities — depth estimation (real MiDaS backend, optional), 3D
+  bbox conversion, LiDAR point-cloud processing, occupancy grids
+- Imitation learning / behavior cloning / safety-constraint validation building blocks
+- IMU/GPS sensor fusion (Kalman-based)
+- 277 tests passing, no dead/foreign-package tests mixed into the suite
 
-### 🚨 CRITICAL (Blocking Production)
-None - v2.0.0 production-ready
+## Known gaps (not built, not claimed as built)
 
-### 🔴 HIGH (Before Q3 Release)
+- No bundled object detector — you supply detections (bounding boxes) to the tracker
+- No GPU-accelerated inference pipeline
+- No foundation-model integration (no CLIP/SAM/Grounding DINO wrapper — an earlier
+  version of this project shipped one that only returned hardcoded fake results; it
+  has been removed rather than left in place)
+- MiDaS depth output is *relative* depth, not metric meters, unless separately
+  calibrated
+- Not a certified or safety-verified autonomous driving stack
 
-#### Testing & Quality
-- [ ] Add MCP-specific unit tests (50-100 lines per project)
-- [ ] Coverage target: >80% for MCP tools
-- [ ] Integration tests with other projects
-- [ ] Performance benchmarking (latency/throughput)
+## Near-term priorities
 
-#### Documentation
-- [ ] Add MCP tool examples (examples/mcp_*.py)
-- [ ] API documentation for each tool
-- [ ] Integration guide for dependent projects
-- [ ] Troubleshooting guide
+- [ ] Example adapter showing how to feed a real detector's output into `MOTTracker`
+- [ ] Metric-scale calibration helper for the MiDaS depth backend
+- [ ] Expand trajectory prediction beyond CV/CA (e.g. a small learned model, optional-torch)
+- [ ] CI matrix covering the `depth` extra (currently skipped in CI to keep it fast/offline)
 
-#### Performance
-- [ ] Optimize hot paths (profile + identify 20% taking 80%)
-- [ ] Caching strategy for repeated queries
-- [ ] Memory optimization (target <200MB)
-- [ ] Connection pooling
+## Out of scope for now
 
-### 🟡 MEDIUM (Q3-Q4 2026)
-
-#### Features
-- [ ] Advanced error handling
-- [ ] Retry logic with exponential backoff
-- [ ] Graceful degradation
-- [ ] Fallback mechanisms
-
-#### Architecture
-- [ ] Code refactoring (simplify hot paths)
-- [ ] Remove technical debt
-- [ ] Modernize dependencies
-- [ ] Cleanup unused code
-
-#### Integration
-- [ ] Test with all 19 platform projects
-- [ ] Document cross-project workflows
-- [ ] Validate end-to-end scenarios
-- [ ] Performance testing at scale
-
-### 🟢 LOW (2027+)
-
-#### Enhancements
-- [ ] Machine learning optimizations
-- [ ] Predictive modeling
-- [ ] Advanced analytics
-- [ ] Autonomous features
-
-#### Platform
-- [ ] Enterprise features
-- [ ] SaaS deployment
-- [ ] Multi-tenancy
-- [ ] Advanced security
-
----
-
-## Phase Timeline
-
-### Phase 2: Q3 2026 (Jul-Sep)
-**Goal:** Critical tests + examples + cross-project integration
-
-- Week 1-2: MCP unit tests (all 19 projects)
-- Week 2-3: MCP examples (examples/mcp_*.py)
-- Week 3-4: Cross-project integration testing
-- Week 4: Performance optimization
-- **Completion Target:** 2026-09-30
-
-### Phase 3: Q4 2026 (Oct-Dec)
-**Goal:** Advanced features + enterprise deployment
-
-- Week 1: Feature enhancements
-- Week 2: Advanced error handling
-- Week 3: Enterprise security
-- Week 4: SLA automation
-- **Completion Target:** 2026-12-31
-
-### Phase 4: 2027
-**Goal:** AI-native enhancements + autonomous features
-
-- Predictive modeling
-- Autonomous optimization
-- Advanced analytics
-- Next-generation architecture
-
----
-
-## Testing Checklist
-
-### Unit Tests
-- [ ] All MCP tool handlers tested
-- [ ] Edge case coverage
-- [ ] Error path testing
-- [ ] Performance regression tests
-
-### Integration Tests
-- [ ] With dependent projects
-- [ ] Cross-project workflows
-- [ ] End-to-end scenarios
-- [ ] Production-like data volumes
-
-### Performance Tests
-- [ ] Latency benchmarks (<100ms)
-- [ ] Throughput testing
-- [ ] Memory profiling
-- [ ] Connection pooling
-
----
-
-## Dependency Status
-
-### Inbound Dependencies
-Check status of upstream projects:
-- [ ] All inbound dependencies are v2.0.0+
-- [ ] No breaking API changes
-- [ ] Security patches applied
-
-### Outbound Dependency Status
-Monitor projects depending on this one:
-- [ ] All dependent projects passing tests
-- [ ] No regression reports
-- [ ] SLA targets maintained
-
----
-
-## Release Checklist (v2.1.0)
-
-Before release to PyPI:
-- [ ] All tests passing (>80% coverage)
-- [ ] MCP tools documented
-- [ ] Examples created and tested
-- [ ] Performance benchmarks meet targets
-- [ ] Security audit completed
-- [ ] Changelog updated
-- [ ] Version bumped (v2.0.0 → v2.1.0)
-- [ ] Wheels built (wheels-only)
-- [ ] GitHub tag created
-- [ ] PyPI package published
-
----
-
-## Metrics & Success Criteria
-
-### Performance Targets
-- Latency: <100ms (p99)
-- Throughput: Platform-dependent
-- Memory: <200MB (typical)
-- CPU: <50% single core
-
-### Quality Targets
-- Test Coverage: >80%
-- MCP Tool Coverage: 100%
-- Documentation: 100%
-- Uptime: >99.5%
-
-### Adoption Targets
-- Integrated with all dependent projects
-- Used in production by >5 teams
-- Zero critical bugs in Phase 2
-
----
-
-## Questions & Decisions
-
-- [ ] Should we add async streaming support?
-- [ ] Do we need multi-region deployment?
-- [ ] What's the migration path from v2.0.0 → v2.1.0?
-- [ ] Should we support older Python versions (<3.10)?
-
----
-
-## Contact & Escalation
-
-**Primary Owner:** Product Team  
-**Escalation Contact:** Platform Lead  
-**Review Schedule:** Every 2 weeks (Phase 2-3)  
-
----
-
-**Next Review:** 2026-08-14 (Phase 2 progress check)
+Full detection -> tracking -> 3D -> planning -> safety "autonomous driving stack"
+claims have been removed from this project's docs. If that's what you need, this
+library can be one component (the tracking/prediction layer) of such a system, but
+it is not one on its own.

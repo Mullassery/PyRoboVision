@@ -4,40 +4,28 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyrobovision"
-version = "2.1.1"
-description = "Complete autonomous driving stack: detection → multi-object tracking → 3D perception → end-to-end learning. Kalman filtering, trajectory prediction, safety-constrained policies, IMU/GPS fusion, GPU optimization."
+version = "3.0.0"
+description = "Multi-object tracking (Kalman filter + Hungarian association) and trajectory prediction for robotics, with an optional real MiDaS monocular depth backend. Pure Python (NumPy + SciPy) core; PyTorch is optional."
 readme = "README.md"
 license = { text = "Proprietary" }
 authors = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
 maintainers = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
 keywords = [
-    "autonomous-driving",
+    "multi-object-tracking",
     "computer-vision",
-    "perception",
-    "lidar-fusion",
-    "3d-object-detection",
-    "bev-bird-eye-view",
-    "panoptic-segmentation",
-    "semantic-segmentation",
-    "camera-calibration",
-    "vision-language-models",
-    "clip",
-    "segment-anything",
-    "foundation-models",
-    "self-driving",
-    "robotics",
-    "deep-learning",
-    "neural-networks",
-    "pytorch",
-    "image-processing",
+    "kalman-filter",
+    "hungarian-algorithm",
+    "trajectory-prediction",
+    "depth-estimation",
+    "midas",
+    "lidar",
+    "occupancy-grid",
     "sensor-fusion",
-    "automotive",
-    "safety-critical",
-    "ml-ops",
-    "edge-ai"
+    "robotics",
+    "imitation-learning",
 ]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: Other/Proprietary License",
@@ -50,41 +38,39 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Scientific/Engineering :: Image Recognition",
-    "Topic :: Multimedia :: Video",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 requires-python = ">=3.10"
 
+# Only what pyrobovision's own code actually imports unconditionally.
 dependencies = [
-    "pyroboframes>=1.1.0",
-    "numpy>=1.24.0",
-    "torch>=2.0.0",
-    "torchvision>=0.15.0",
-    "transformers>=4.30.0",
-    "scipy>=1.10.0",
+    "numpy>=1.24,<3.0",
+    "scipy>=1.10,<2.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "black>=23.0.0",
-    "isort>=5.12.0",
-    "mypy>=1.4.0",
-    "ruff>=0.0.285",
+    "pytest>=7.4,<9.0",
+    "pytest-cov>=4.1,<8.0",
+    "black>=23.0,<26.0",
+    "isort>=5.12,<7.0",
+    "mypy>=1.4,<2.0",
+    "ruff>=0.0.285,<1.0",
 ]
 
-cuda = [
-    "cupy>=12.0.0",
-    "torch[cuda11x]>=2.0.0",
+# Needed only for DepthEstimator(model="midas") (real MiDaS inference) and
+# for pyrobovision.fusion.optimization.ModelOptimizer's ONNX export helpers.
+# >=2.6 required: torch.load defaults changed to weights_only=True in 2.6,
+# which is the safer default (this package does not call torch.load itself,
+# but the floor keeps anyone who does on the safer default).
+depth = [
+    "torch>=2.6,<3.0",
+    "pillow>=10.0,<12.0",
 ]
 
-mlx = [
-    "mlx>=0.0.13",
-]
-
-vision3d = [
-    "open3d>=0.17.0",
+onnx = [
+    "onnx>=1.15,<2.0",
+    "onnxruntime>=1.17,<2.0",
 ]
 
 [project.urls]
@@ -118,7 +104,6 @@ skip_glob = ["*.pyi"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --cov=pyrobovision --cov-report=term-missing"
-asyncio_mode = "auto"
 
 [tool.mypy]
 python_version = "3.10"
