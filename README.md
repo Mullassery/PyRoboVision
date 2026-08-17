@@ -151,6 +151,7 @@ state = fusion_engine.update_gps(GPSData(latitude=37.7749, longitude=-122.4194, 
 print(f"Fused position: {state.position}, uncertainty: {state.covariance}")
 
 validator = SafetyValidator(max_acceleration=5.0, max_steering=45.0)
+proposed_action = np.array([6.5, 50.0])  # [acceleration, steering_angle] — over both limits
 safe_action = validator.correct_action(proposed_action, {"speed": 15.0})
 ```
 
@@ -220,7 +221,7 @@ src/pyrobovision/
 
 - **[PyRoboFrames](https://github.com/Mullassery/PyRoboFrames)** — a separate,
   independently published dataloader project by the same author (LeRobot, RLDS,
-  HDF5, NetCDF, S3/GCS). PyRoboVision does not depend on it — if you want to feed
+  HDF5, NetCDF, S3-compatible object storage). PyRoboVision does not depend on it — if you want to feed
   PyRoboFrames-loaded data into this tracker, install it separately.
 
 ---
