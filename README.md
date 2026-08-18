@@ -5,7 +5,7 @@
 [![PyPI](https://img.shields.io/pypi/v/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![Python](https://img.shields.io/pypi/pyversions/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE)
-[![Tests](https://img.shields.io/badge/tests-277%20passing-brightgreen)](./tests)
+[![Tests](https://img.shields.io/badge/tests-276%20passing-brightgreen)](./tests)
 [![Coverage](https://img.shields.io/badge/coverage-87%25-green)]()
 
 ## What this actually is
@@ -146,7 +146,7 @@ from pyrobovision.learning.safety import SafetyValidator
 
 fusion_engine = SensorFusionEngine(origin_lat=37.7749, origin_lon=-122.4194)
 state = fusion_engine.update_imu(IMUData(timestamp=0.0, accelerometer=[0, 0, 9.8], gyroscope=[0, 0, 0]))
-state = fusion_engine.update_gps(GPSData(latitude=37.7749, longitude=-122.4194, altitude=10.0,
+state = fusion_engine.update_gps(GPSData(timestamp=0.1, latitude=37.7749, longitude=-122.4194, altitude=10.0,
                                           speed=5.0, heading=90.0, accuracy=2.0))
 print(f"Fused position: {state.position}, uncertainty: {state.covariance}")
 
