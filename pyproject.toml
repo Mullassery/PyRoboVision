@@ -103,7 +103,11 @@ skip_glob = ["*.pyi"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-v --cov=pyrobovision --cov-report=term-missing"
+# --cov=pyrobovision (the package name) silently fails to resolve coverage
+# data against this src/ layout in some coverage.py versions - it reports
+# "No data was collected" even though the tests genuinely exercise the code.
+# The path form works reliably.
+addopts = "-v --cov=src/pyrobovision --cov-report=term-missing"
 
 [tool.mypy]
 python_version = "3.10"

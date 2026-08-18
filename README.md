@@ -6,7 +6,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE)
 [![Tests](https://img.shields.io/badge/tests-277%20passing-brightgreen)](./tests)
-[![Coverage](https://img.shields.io/badge/coverage-89%25-green)]()
+[![Coverage](https://img.shields.io/badge/coverage-87%25-green)]()
 
 ## What this actually is
 
@@ -196,9 +196,13 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-277 tests passing, ~89% coverage, on Python 3.11 (no `torch` installed — the one test
-that requires real MiDaS inference skips cleanly without it and runs when the
-`[depth]` extra is installed). CI runs the same command on every push.
+276 passing / 1 skipped, 87% coverage (measured for real - `--cov=src/pyrobovision`,
+1895 statements / 244 missed; the previous `--cov=pyrobovision` config used the package
+name instead of a path, which silently reported "no data collected" rather than a real
+number - the `89%` this README used to claim was never actually measured), on Python
+3.11 (no `torch` installed — the one test that requires real MiDaS inference skips
+cleanly without it and runs when the `[depth]` extra is installed). CI runs the same
+command on every push.
 
 ---
 
