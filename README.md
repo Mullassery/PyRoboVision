@@ -228,6 +228,12 @@ src/pyrobovision/
   HDF5, NetCDF, S3-compatible object storage). PyRoboVision does not depend on it — if you want to feed
   PyRoboFrames-loaded data into this tracker, install it separately.
 
+**Cross-repo compatibility, whole family**: this author also publishes
+`PyRoboSimulator`, `pyroboreplay`, and `PyTerrainMap`. Verified by reading
+every `Cargo.toml`/`pyproject.toml` across all of them: none has a Cargo or
+pip dependency on PyRoboVision, and PyRoboVision has none on them — each is
+independently installable and versioned.
+
 ---
 
 ## Documentation
