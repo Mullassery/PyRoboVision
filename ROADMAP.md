@@ -1,6 +1,6 @@
 # PyRoboVision Roadmap
 
-**Current version:** 3.0.0
+**Current version:** 3.1.0
 
 ## What's done and real
 
