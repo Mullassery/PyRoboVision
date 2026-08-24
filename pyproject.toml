@@ -63,9 +63,14 @@ dev = [
 # >=2.6 required: torch.load defaults changed to weights_only=True in 2.6,
 # which is the safer default (this package does not call torch.load itself,
 # but the floor keeps anyone who does on the safer default).
+# timm is required transitively: intel-isl/MiDaS's MiDaS_small torch.hub
+# entrypoint imports timm internally, so without it here
+# test_midas_real_inference_sanity fails at load time with "No module named
+# 'timm'" even though torch itself is installed (verified locally).
 depth = [
     "torch>=2.6,<3.0",
     "pillow>=10.0,<12.0",
+    "timm>=0.9,<2.0",
 ]
 
 onnx = [

@@ -15,3 +15,21 @@ jobs:
         run: pip install -e ".[dev]"
       - name: Test
         run: pytest tests/ -v
+
+  # Separate job (not folded into the matrix above) so torch + the MiDaS
+  # weight download stay off the default fast/offline path: this is the one
+  # leg that installs the `depth` extra, so test_midas_real_inference_sanity
+  # (skipped everywhere else via pytest.importorskip("torch")) actually runs
+  # against the real pretrained model instead of only being exercised
+  # locally by whoever happens to have torch installed.
+  test-depth-extra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -e ".[dev,depth]"
+      - name: Test
+        run: pytest tests/ -v -k "midas or depth"
