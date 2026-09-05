@@ -7,7 +7,7 @@ name = "pyrobovision"
 version = "3.1.0"
 description = "Multi-object tracking (Kalman filter + Hungarian association) and trajectory prediction for robotics, with an optional real MiDaS monocular depth backend. Pure Python (NumPy + SciPy) core; PyTorch is optional."
 readme = "README.md"
-license = { text = "Proprietary" }
+license = "Apache-2.0"
 authors = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
 maintainers = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
 keywords = [
@@ -28,7 +28,7 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: Other/Proprietary License",
+    "License :: OSI Approved :: Apache Software License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",

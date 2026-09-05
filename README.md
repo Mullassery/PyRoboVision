@@ -254,7 +254,7 @@ For security issues, see [SECURITY.md](./SECURITY.md).
 
 ## License
 
-Proprietary — Georgi Mammen Mullassery. See [LICENSE](./LICENSE).
+This project is licensed under the [Apache License 2.0](LICENSE).
 
 ## Citation
 
