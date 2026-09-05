@@ -14,8 +14,11 @@
   bbox conversion, LiDAR point-cloud processing, occupancy grids
 - Imitation learning / behavior cloning / safety-constraint validation building blocks
 - IMU/GPS sensor fusion (Kalman-based)
-- 285 tests passing (277 base + 8 new for `LearnedTrajectoryModel`), no dead/foreign-package
-  tests mixed into the suite
+- 285 tests total (277 base + 8 added for `LearnedTrajectoryModel`), no dead/foreign-package
+  tests mixed into the suite. Re-verified directly for this pass: `pytest tests/ -q` gives
+  278 passed / 7 skipped without the optional `torch`/`depth` extra installed; the 7 skips
+  are the MiDaS/torch-dependent tests, which CI's separate `test-depth-extra` job installs
+  and runs for real (see `.github/workflows/tests.yml`) rather than leaving permanently skipped.
 
 ## Known gaps (not built, not claimed as built)
 
