@@ -4,7 +4,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![Python](https://img.shields.io/pypi/pyversions/pyrobovision)](https://pypi.org/project/pyrobovision/)
-[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE)
 [![Tests](https://img.shields.io/badge/tests-276%20passing-brightgreen)](./tests)
 [![Coverage](https://img.shields.io/badge/coverage-87%25-green)]()
 
@@ -27,6 +27,23 @@ we'd rather be boring and accurate than impressive and wrong.
 
 The core package depends on **NumPy and SciPy only**. PyTorch is an optional extra,
 needed only if you want real MiDaS depth inference or the ONNX export helpers.
+
+## Use cases
+
+- **Adding multi-object tracking on top of your own detector** — feed
+  bounding boxes from YOLO/SAM/whatever into `MOTTracker`; it handles
+  identity persistence through occlusion.
+- **Trajectory forecasting from tracked positions** — constant-velocity/
+  acceleration prediction with uncertainty, for collision-avoidance-style
+  logic downstream.
+- **IMU/GPS sensor fusion** for a fused position estimate with covariance,
+  without hand-rolling a Kalman filter.
+- **Not yet a good fit for:** a full detection pipeline (bring your own
+  detector), GPU-accelerated inference, metric (not just ordered) depth
+  without your own calibration, or foundation-model integration (CLIP/SAM/
+  Grounding DINO — an earlier version claimed this via a module that
+  returned hardcoded fake results; it's been removed, not shipped — see
+  [What's NOT included](#whats-not-included)).
 
 ---
 
