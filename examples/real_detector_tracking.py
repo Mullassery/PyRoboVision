@@ -5,7 +5,7 @@ hand-crafted synthetic boxes. This example shows the other half of the
 picture: how to adapt a real detector's raw output (torchvision's
 Faster R-CNN, COCO-pretrained) into the `Detection` objects `MOTTracker`
 expects. This library ships no bundled detector by design (see
-`ROADMAP.md`'s "Known gaps") — you always have to do this conversion
+`ROADMAP_HONEST.md`'s "Known gaps") — you always have to do this conversion
 yourself, and this is a worked example of that conversion.
 
 Requires `pip install torch torchvision` (not a pyrobovision dependency,

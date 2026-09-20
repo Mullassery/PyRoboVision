@@ -64,7 +64,7 @@ pytest tests/ -v
 
 ## License
 
-By contributing, you agree your contributions are licensed under the [Proprietary License](./LICENSE).
+By contributing, you agree your contributions are licensed under the [Apache License 2.0](./LICENSE).
 
 ## Questions?
 

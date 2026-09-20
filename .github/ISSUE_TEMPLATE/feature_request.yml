@@ -1,0 +1,37 @@
+name: Feature Request
+description: Suggest an addition or change to PyRoboVision
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before requesting a foundation-model integration (CLIP/SAM/Grounding
+        DINO) or a bundled detector, please read
+        [ROADMAP_HONEST.md's "Known gaps" / "Out of scope for now"](../../ROADMAP_HONEST.md) —
+        an earlier version of this project shipped exactly that and it only
+        returned hardcoded fake results, so it was removed. New proposals in
+        that direction need to come with a real, working implementation, not
+        a stub.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: What are you trying to do that the current API doesn't support?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: API sketch, expected inputs/outputs, or a link to a similar API elsewhere.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Can this be done today by composing existing pieces (e.g. feeding your own detector into `MOTTracker`)?
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I'd be willing to submit a PR for this with tests.

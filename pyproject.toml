@@ -102,7 +102,6 @@ target-version = ["py310", "py311", "py312", "py313"]
 [tool.isort]
 profile = "black"
 line_length = 100
-multi_line_mode = 3
 skip_glob = ["*.pyi"]
 
 [tool.pytest.ini_options]

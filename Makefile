@@ -21,13 +21,13 @@ test:
 	pytest -v
 
 test-cov:
-	pytest -v --cov=pyrobovision --cov-report=term-missing
+	pytest -v --cov=src/pyrobovision --cov-report=term-missing
 
 lint:
 	black --check .
 	isort --check-only .
 	ruff check .
-	mypy pyrobovision
+	mypy src/pyrobovision
 
 fmt:
 	black .

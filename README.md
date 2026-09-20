@@ -5,8 +5,8 @@
 [![PyPI](https://img.shields.io/pypi/v/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![Python](https://img.shields.io/pypi/pyversions/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE)
-[![Tests](https://img.shields.io/badge/tests-276%20passing-brightgreen)](./tests)
-[![Coverage](https://img.shields.io/badge/coverage-87%25-green)]()
+[![Tests](https://img.shields.io/badge/tests-278%20passing-brightgreen)](./tests)
+[![Coverage](https://img.shields.io/badge/coverage-84%25-green)]()
 
 ## What this actually is
 
@@ -213,13 +213,18 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-276 passing / 1 skipped, 87% coverage (measured for real - `--cov=src/pyrobovision`,
-1895 statements / 244 missed; the previous `--cov=pyrobovision` config used the package
-name instead of a path, which silently reported "no data collected" rather than a real
-number - the `89%` this README used to claim was never actually measured), on Python
-3.11 (no `torch` installed — the one test that requires real MiDaS inference skips
-cleanly without it and runs when the `[depth]` extra is installed). CI runs the same
-command on every push.
+278 passed / 7 skipped, 84% coverage (re-measured for this pass - `pytest tests/ -q`,
+`--cov=src/pyrobovision`, 1982 statements / 317 missed) on Python 3.11 with no `torch`
+installed — the 7 skips are the MiDaS/torch-dependent tests (they run for real in CI's
+separate `test-depth-extra` job, and locally too once you `pip install
+"pyrobovision[depth]"`). CI runs the same base command on every push.
+
+Note: `black --check src/ tests/` and `isort --check-only src/ tests/` both currently
+report unformatted files (32 of 48 checked by black), and `mypy src/pyrobovision`
+reports 72 pre-existing type errors — none of this is enforced in CI today. See
+[ROADMAP_HONEST.md](./ROADMAP_HONEST.md#technical-debt) for specifics; it doesn't
+affect runtime correctness (all tests still pass), but `make lint` will not pass
+clean if you run it.
 
 ---
 
@@ -256,7 +261,8 @@ independently installable and versioned.
 ## Documentation
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — development setup and guidelines
-- [ROADMAP.md](./ROADMAP.md) — what's done, what's not, what's next
+- [ROADMAP_HONEST.md](./ROADMAP_HONEST.md) — what's done, what's not, what's next, and known technical debt
+- [CHANGELOG.md](./CHANGELOG.md) — notable changes, Keep a Changelog format
 - [SECURITY.md](./SECURITY.md) — vulnerability reporting
 - [docs/CODE_OF_CONDUCT.md](./docs/CODE_OF_CONDUCT.md) — community guidelines
 - [docs/BENCHMARKS.md](./docs/BENCHMARKS.md) — current benchmark status (none published yet — how to run your own)

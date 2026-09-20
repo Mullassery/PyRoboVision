@@ -8,8 +8,10 @@ this repository.
 PyRoboVision is a pure Python (NumPy + SciPy only) **multi-object tracking and
 trajectory prediction** library: Kalman filter state estimation + Hungarian algorithm
 association, with real occlusion handling and constant velocity/acceleration
-trajectory prediction. That core is genuinely implemented and tested (277 tests,
-~89% coverage).
+trajectory prediction. That core is genuinely implemented and tested (285 tests
+total; 278 passed / 7 skipped without the optional `torch`/`depth` extra installed,
+84% line coverage measured via `pytest --cov=src/pyrobovision` — re-verified for
+this pass, see ROADMAP_HONEST.md).
 
 Around it are supporting utilities of varying maturity — see the table in
 [README.md](./README.md#whats-real-vs-placeholder) for the honest real/placeholder
@@ -61,8 +63,8 @@ pyrobovision` stays lightweight.
 ```bash
 python3 -m venv venv && source venv/bin/activate
 pip install -e ".[dev]"          # core dev deps only — no torch
-pytest tests/ -v                 # 277 tests, ~89% coverage, all pass without torch
-pytest tests/ -v --cov=pyrobovision --cov-report=term-missing
+pytest tests/ -v                 # 278 passed / 7 skipped without torch, 84% coverage
+pytest tests/ -v --cov=src/pyrobovision --cov-report=term-missing
 
 # Optional extras
 pip install -e ".[dev,depth]"    # + torch, for DepthEstimator(model="midas")
@@ -91,4 +93,4 @@ Format & lint: `black src/ tests/`, `isort src/ tests/`, `mypy src/pyrobovision/
 
 ## License
 
-Proprietary (same as PyRoboFrames) — Georgi Mammen Mullassery.
+Apache License 2.0 — Georgi Mammen Mullassery.

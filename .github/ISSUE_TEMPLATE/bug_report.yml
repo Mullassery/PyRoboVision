@@ -1,0 +1,53 @@
+name: Bug Report
+description: Report a problem with PyRoboVision
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please check the
+        [README's "What's real vs. placeholder" table](../../README.md#whats-real-vs-placeholder)
+        first — some behavior (e.g. the default heuristic depth backend) is a
+        documented placeholder, not a bug.
+  - type: input
+    id: version
+    attributes:
+      label: pyrobovision version
+      description: Output of `pip show pyrobovision` or the git commit if installed from source.
+      placeholder: "3.1.0"
+    validations:
+      required: true
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      placeholder: "3.11.9"
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: A minimal, runnable code snippet that reproduces the issue.
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: traceback
+    attributes:
+      label: Full error output / traceback
+      render: shell
+  - type: checkboxes
+    id: extras
+    attributes:
+      label: Optional extras installed
+      options:
+        - label: "`pyrobovision[depth]` (torch, MiDaS)"
+        - label: "`pyrobovision[onnx]`"
