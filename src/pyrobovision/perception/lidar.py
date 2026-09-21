@@ -199,7 +199,7 @@ class LiDARProcessor:
                     eigenvalues, eigenvectors = np.linalg.eig(cov)
                     min_idx = np.argmin(np.abs(eigenvalues))
                     normals[i] = eigenvectors[:, min_idx].real
-                except:
+                except np.linalg.LinAlgError:
                     normals[i] = np.array([0, 0, 1])
 
         return normals

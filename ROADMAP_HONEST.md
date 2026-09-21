@@ -62,8 +62,10 @@ it is not one on its own.
 ## Technical Debt
 
 Assessed and re-verified during the 2026-09 OSS maturity pass. Two config bugs were
-fixed directly (safe, mechanical); everything else below is real, unaddressed debt
-left for a dedicated follow-up rather than fixed here.
+fixed directly (safe, mechanical); a follow-up quick-fix pass then resolved the two
+bare-`except:` clauses and the dev-tool CVE ceilings (see below); everything else
+remaining is real, unaddressed debt left for a dedicated follow-up rather than fixed
+here.
 
 ### Fixed in this pass (safe, mechanical)
 
@@ -110,7 +112,8 @@ left for a dedicated follow-up rather than fixed here.
   ruff hooks but they're opt-in (`pre-commit install`), not enforced server-side.
   Fixing this is a single mechanical `make fmt` run, but it touches ~35 files and
   should be its own PR, not bundled into a docs pass.
-- **`ruff check src/pyrobovision`: 223 findings (168 auto-fixable)**. Breakdown:
+- **`ruff check src/pyrobovision`: 221 findings (168 auto-fixable)** — was 223
+  before the two `E722` bare-excepts below were fixed. Breakdown:
   105× `UP006`/40× `UP035` (old `typing.Dict`/`typing.List`/`typing.Tuple` instead
   of builtin generics — the package requires Python >=3.10 but was never modernized
   to PEP 585/604 syntax), 25× `I001` unsorted imports, 16× `F401` unused imports
@@ -118,14 +121,14 @@ left for a dedicated follow-up rather than fixed here.
   `src/pyrobovision/behavior/analyzer.py:4`, `typing.List` unused in
   `src/pyrobovision/behavior/patterns.py:3`, `typing.Tuple` unused in
   `src/pyrobovision/fusion/optimization.py:2`), 15× `UP045` (`Optional[X]` instead of
-  `X | None`), 3× `F841` unused variables, 2× `E722` **bare `except:` clauses that
-  swallow every exception** including `KeyboardInterrupt`/`SystemExit`
-  (`src/pyrobovision/perception/bbox_3d.py:147` and
-  `src/pyrobovision/perception/lidar.py:202` — both silently fall back to a default
-  value on *any* failure in an eigendecomposition, which could mask a real numerical
-  bug as well as a legitimate edge case). The two bare-excepts are the one item here
-  worth prioritizing over the rest — everything else is style/modernization, that one
-  hides failures.
+  `X | None`), 3× `F841` unused variables. ~~2× `E722` bare `except:` clauses~~ —
+  **fixed** in the 2026-09 quick-fix follow-up: `src/pyrobovision/perception/bbox_3d.py:147`
+  and `src/pyrobovision/perception/lidar.py:202` now catch `np.linalg.LinAlgError`
+  specifically (the only exception `np.linalg.eig` actually raises, on
+  non-convergence) instead of every exception including
+  `KeyboardInterrupt`/`SystemExit`; `ruff check src/pyrobovision --select E722` is
+  now clean and the full test suite still passes (278 passed / 7 skipped).
+  Everything else in this ruff bullet remains style/modernization debt, unaddressed.
 - **`mypy src/pyrobovision`: 72 errors in 15 files.** Two categories: (1) missing
   variable annotations under `disallow_untyped_defs = false` still triggering
   `var-annotated` errors for list/dict attributes initialized as `[]`/`{}` in
@@ -139,26 +142,25 @@ left for a dedicated follow-up rather than fixed here.
   `pyproject.toml`'s `[tool.mypy]` has no per-module override
   (`ignore_missing_imports`) for them, so a plain `mypy src/pyrobovision` run always
   shows these as errors regardless of who's running it or why.
-- **Known vulnerabilities in pinned dev-tool ceilings** (verified locally with
-  `pip-audit` against `pip install -e ".[dev]"` — this is a real, network-checked
-  result, not a guess): `black` resolves to `25.12.0` under the
-  `black>=23.0,<26.0` ceiling in `pyproject.toml:54` and has two open advisories
-  (`PYSEC-2026-2121`, `PYSEC-2026-2120`), fixed in `26.3.0`/`26.3.1` — both **outside**
-  the current ceiling. `pytest` resolves to `8.4.2` under `pytest>=7.4,<9.0`
-  (`pyproject.toml:52`) with advisory `PYSEC-2026-1845`, fixed in `9.0.3` — also
-  outside the ceiling. Both are dev-only tooling (not shipped to anyone who does
-  `pip install pyrobovision`), so there's no supply-chain exposure for downstream
-  users, but anyone running `pip install -e ".[dev]"` today gets vulnerable tool
-  versions. Bumping the ceilings is easy; verifying nothing breaks (especially
-  `black` 26.x potentially reformatting differently, compounding the drift above) is
-  the actual work, hence deferred rather than done inline here. A `dependency-audit`
-  CI job (`pip-audit`, `continue-on-error: true`) was added in this pass so this
-  stays visible instead of silently rotting further, but it does not gate merges yet.
+- ~~**Known vulnerabilities in pinned dev-tool ceilings**~~ — **fixed** in the
+  2026-09 quick-fix follow-up: `pyproject.toml`'s dev ceilings were
+  `black>=23.0,<26.0` (line 54) and `pytest>=7.4,<9.0` (line 52), which blocked
+  the versions carrying fixes for `PYSEC-2026-2121`/`PYSEC-2026-2120` (black,
+  fixed in `26.3.0`/`26.3.1`) and `PYSEC-2026-1845` (pytest, fixed in `9.0.3`).
+  Bumped to `black>=23.0,<27.0` and `pytest>=7.4,<10.0`; installs now resolve to
+  `black==26.5.1` / `pytest==9.1.1`. Verified: `pip-audit` now reports zero known
+  vulnerabilities (previously 3 advisories across the two packages); full test
+  suite still 278 passed / 7 skipped; `black --check src/ tests/` still flags
+  the same 32/48 files as before the bump — the newer black did not introduce
+  additional formatting drift. Both are dev-only tooling (not shipped to anyone
+  who does `pip install pyrobovision`). The `dependency-audit` CI job
+  (`pip-audit`, `continue-on-error: true`) added in the original OSS pass stays
+  in place as an informational, non-blocking check.
 - **No CI enforcement of lint/format/types at all.** `.github/workflows/tests.yml`
   only runs `pytest`. `Makefile`'s `lint` target and `CONTRIBUTING.md`'s "Before
   opening a PR" section both tell contributors to run black/isort/ruff/mypy, but
   nothing checks it server-side. Deliberately not added as a blocking CI job in this
   pass, because turning it on today would immediately fail on the pre-existing drift
-  above — the real fix is: run `make fmt`, fix the two bare-excepts and the mypy
-  `var-annotated` errors, add mypy overrides for the optional-extra imports, *then*
-  add the CI gate.
+  above — the real fix is: run `make fmt`, fix the mypy `var-annotated` errors, add
+  mypy overrides for the optional-extra imports, *then* add the CI gate. (The two
+  bare-excepts that used to be on this list are already fixed — see above.)

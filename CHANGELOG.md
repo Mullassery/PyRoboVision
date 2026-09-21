@@ -11,8 +11,31 @@ was not retroactively reconstructed into this format — see `git log` and
 
 ## [Unreleased]
 
+### Security
+
+- `pyproject.toml`: bumped dev-only dependency ceilings —
+  `black>=23.0,<26.0` -> `<27.0` and `pytest>=7.4,<9.0` -> `<10.0` — to allow
+  installing versions with known-CVE fixes. Resolves `black` advisories
+  `PYSEC-2026-2121`/`PYSEC-2026-2120` (fixed in `26.3.0`/`26.3.1`; installs
+  `26.5.1`) and `pytest` advisory `PYSEC-2026-1845` (fixed in `9.0.3`;
+  installs `9.1.1`). Verified: `pip-audit` reports zero known vulnerabilities
+  after the bump (previously reported all 3); full test suite still
+  278 passed / 7 skipped; `black --check src/ tests/` still flags the same
+  32/48 files as before the bump (no new formatting drift introduced by the
+  newer black). Both are dev-only tooling, not shipped to downstream users.
+
 ### Fixed
 
+- `src/pyrobovision/perception/bbox_3d.py:147` and
+  `src/pyrobovision/perception/lidar.py:202`: narrowed bare `except:` clauses
+  (ruff `E722`) around `np.linalg.eig()` calls to
+  `except np.linalg.LinAlgError:`. These previously swallowed every
+  exception, including `KeyboardInterrupt`/`SystemExit`; the only failure
+  mode `np.linalg.eig` actually raises is `LinAlgError` on non-convergence,
+  so the fallback-to-identity/default behavior is preserved for that case
+  while everything else now propagates. Verified: full test suite still
+  278 passed / 7 skipped; `ruff check src/pyrobovision --select E722` now
+  passes with zero findings (previously 2).
 - `pyproject.toml`: removed an invalid `[tool.isort]` setting
   (`multi_line_mode = 3`) that caused `isort` to hard-crash with
   `UnsupportedSettings` instead of running.

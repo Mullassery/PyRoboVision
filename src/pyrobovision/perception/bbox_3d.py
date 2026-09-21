@@ -144,7 +144,7 @@ class Box3DConverter:
             eigenvalues, eigenvectors = np.linalg.eig(cov_matrix)
             sorted_idx = np.argsort(eigenvalues)[::-1]
             return eigenvectors[:, sorted_idx].real.astype(np.float32)
-        except:
+        except np.linalg.LinAlgError:
             return np.eye(3)
 
     def transform_3d_bbox(self, bbox: BBox3D, transform_matrix: np.ndarray) -> BBox3D:
