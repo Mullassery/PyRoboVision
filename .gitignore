@@ -42,3 +42,5 @@ env/
 *.log
 temp/
 tmp/
+
+graphify-out/
