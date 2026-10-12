@@ -1,5 +1,7 @@
 # PyRoboVision
 
+[![Grapify](https://img.shields.io/badge/Grapify-Code%20Scan-purple)](https://grapify.ai)
+
 **Multi-object tracking (Kalman filter + Hungarian algorithm) and trajectory prediction, in pure Python.**
 
 [![PyPI](https://img.shields.io/pypi/v/pyrobovision)](https://pypi.org/project/pyrobovision/)
