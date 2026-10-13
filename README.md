@@ -1,55 +1,68 @@
 # PyRoboVision
 
-[![Graphify](https://img.shields.io/badge/Graphify-knowledge%20graph-blue)](https://github.com/Graphify-Labs/graphify)
+Multi-object tracking (Kalman filter + Hungarian association) and trajectory prediction for robotics — pure Python (NumPy + SciPy) core, with an optional real MiDaS monocular depth backend.
 
-**Multi-object tracking (Kalman filter + Hungarian algorithm) and trajectory prediction, in pure Python.**
-
+[![CI](https://github.com/Mullassery/PyRoboVision/actions/workflows/tests.yml/badge.svg)](https://github.com/Mullassery/PyRoboVision/actions/workflows/tests.yml)
 [![PyPI](https://img.shields.io/pypi/v/pyrobovision)](https://pypi.org/project/pyrobovision/)
-[![Python](https://img.shields.io/pypi/pyversions/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE)
-[![Tests](https://img.shields.io/badge/tests-278%20passing-brightgreen)](./tests)
-[![Coverage](https://img.shields.io/badge/coverage-84%25-green)]()
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
-## What this actually is
+## What it is
 
-PyRoboVision's real, tested core is a **multi-object tracker**: Kalman filter state
-estimation + Hungarian algorithm association, with occlusion handling (tracks are
-predicted through gaps in detection and re-associate on reacquisition) and constant
-velocity/acceleration trajectory prediction with uncertainty quantification.
+PyRoboVision's real, tested core is a multi-object tracker: Kalman-filter state estimation plus Hungarian-algorithm association, with occlusion handling (tracks are predicted through detection gaps and re-associate on reacquisition) and constant-velocity / constant-acceleration trajectory prediction with uncertainty. Around it are supporting utilities: 3D perception (depth, 3D boxes, LiDAR, occupancy grids), rule-based behavior/intent classification, and minimal imitation-learning / behavior-cloning / safety-constraint building blocks. The core depends on NumPy and SciPy only; PyTorch is optional.
 
-Around that core there are supporting utilities: 3D perception (a real MiDaS
-monocular depth backend, 3D bounding box conversion, LiDAR point-cloud processing,
-occupancy grids), rule-based behavior/intent classification, and simple imitation
-learning / behavior cloning / safety-constraint building blocks.
+## Features
 
-**This is not** a full detection -> tracking -> 3D -> planning -> safety autonomous
-driving stack, and doesn't claim to be. See [What's NOT included](#whats-not-included)
-below for specifics — an earlier version of this README oversold this project, and
-we'd rather be boring and accurate than impressive and wrong.
+- **Multi-object tracking** — `MOTTracker`, `Track`, `Detection`; birth/confirm/occlude/death lifecycle; IoU association via `scipy.optimize.linear_sum_assignment`.
+- **Occlusion handling** — every track is predicted each frame; a confirmed track survives up to `max_age` missed frames and re-associates to the same `track_id`.
+- **Trajectory prediction** — `TrajectoryPredictor` with `"cv"` (constant velocity) or `"ca"` (constant acceleration) models and uncertainty.
+- **Depth estimation** — `DepthEstimator(model="heuristic")` (default, no extra deps) or `model="midas"` (real pretrained MiDaS_small via `torch.hub`, optional `[depth]` extra).
+- **3D perception utilities** — `Box3DConverter` (2D bbox + depth → 3D), LiDAR point-cloud filtering/clustering, BEV occupancy grids.
+- **Sensor fusion** — Kalman-based IMU/GPS fusion with covariance (`SensorFusionEngine`).
+- **ONNX export** — thin wrapper around `torch.onnx.export` (optional `[onnx]` extra).
+- **Learning helpers** — imitation learning, behavior cloning, `SafetyValidator` constraint correction.
 
-The core package depends on **NumPy and SciPy only**. PyTorch is an optional extra,
-needed only if you want real MiDaS depth inference or the ONNX export helpers.
+## Who it's for / Use cases
 
-## Use cases
+- **Adding tracking on top of your own detector** — feed bounding boxes from YOLO/SAM/anything into `MOTTracker`; it handles identity persistence through occlusion.
+- **Forecasting from tracked positions** — constant-velocity/acceleration prediction with uncertainty for downstream collision-avoidance logic.
+- **IMU/GPS fusion** — a fused position estimate with covariance without hand-rolling a Kalman filter.
+- **Prototyping 3D perception** — depth maps, 3D boxes, and occupancy grids from 2D detections and a calibrated camera.
 
-- **Adding multi-object tracking on top of your own detector** — feed
-  bounding boxes from YOLO/SAM/whatever into `MOTTracker`; it handles
-  identity persistence through occlusion.
-- **Trajectory forecasting from tracked positions** — constant-velocity/
-  acceleration prediction with uncertainty, for collision-avoidance-style
-  logic downstream.
-- **IMU/GPS sensor fusion** for a fused position estimate with covariance,
-  without hand-rolling a Kalman filter.
-- **Not yet a good fit for:** a full detection pipeline (bring your own
-  detector), GPU-accelerated inference, metric (not just ordered) depth
-  without your own calibration, or foundation-model integration (CLIP/SAM/
-  Grounding DINO — an earlier version claimed this via a module that
-  returned hardcoded fake results; it's been removed, not shipped — see
-  [What's NOT included](#whats-not-included)).
+## What it is not
 
----
+- **No object detector.** You bring your own detections (bounding boxes + confidence); none is bundled or wrapped.
+- **No GPU-accelerated inference pipeline.** The tracking/prediction core is CPU NumPy/SciPy.
+- **No foundation-model integration** (CLIP/SAM/Grounding DINO). An earlier version shipped a module that returned hardcoded fake results; it was removed, not fixed.
+- **MiDaS output is relative, not metric** — correctly ordered near/far depth, not meters, unless you calibrate against a known reference.
+- **Not a certified or safety-verified autonomous-driving stack.** `SafetyValidator` is a basic constraint checker.
+- **The default `heuristic` depth backend is a Sobel-edge placeholder, not a learned depth model.**
 
-## 30-Second Start
+## Project status
+
+Beta (Development Status 4), version **3.1.0** (matching the latest PyPI release). `tracking/` and `prediction/` are implemented and tested; supporting utilities (perception, fusion, learning) are real but minimal. **278 passed / 7 skipped, 84% measured line coverage** on Python 3.11 (the 7 skips are the torch/MiDaS-dependent tests, which run when the `[depth]` extra is installed). `black --check` / `isort --check-only` currently report unformatted files and `mypy` reports pre-existing type errors, none enforced in CI today. See [ROADMAP_HONEST.md](./ROADMAP_HONEST.md).
+
+## Installation
+
+```bash
+pip install pyrobovision
+
+# real MiDaS depth estimation (installs PyTorch; one-time model download)
+pip install "pyrobovision[depth]"
+
+# ONNX model-export utilities
+pip install "pyrobovision[onnx]"
+```
+
+Requires Python 3.10+. From source:
+
+```bash
+git clone https://github.com/Mullassery/PyRoboVision.git
+cd PyRoboVision
+pip install -e ".[dev]"
+```
+
+## Quick start
 
 ```python
 import numpy as np
@@ -57,40 +70,16 @@ from pyrobovision.tracking.mot import MOTTracker, Detection
 
 tracker = MOTTracker(max_age=30, min_hits=3)
 
-# Detections come from *your* detector (YOLO, SAM, a color blob detector,
-# whatever) — PyRoboVision does not ship one. Each is just a bounding box
-# plus a confidence score.
+# Detections come from *your* detector — each is a bounding box + confidence.
 detections = [Detection(bbox=np.array([100, 100, 140, 180]), confidence=0.92)]
 
-confirmed_tracks = tracker.update(detections)
-for track in confirmed_tracks:
-    print(f"track {track.track_id}: position={track.get_position()}, velocity={track.get_velocity()}")
+for track in tracker.update(detections):
+    print(track.track_id, track.get_position(), track.get_velocity())
 ```
 
----
+## Usage
 
-## Installation
-
-```bash
-pip install pyrobovision
-
-# With real MiDaS depth estimation (installs PyTorch, one-time model download)
-pip install "pyrobovision[depth]"
-
-# With ONNX model export utilities
-pip install "pyrobovision[onnx]"
-
-# From source
-git clone https://github.com/Mullassery/PyRoboVision.git
-cd PyRoboVision
-pip install -e ".[dev]"
-```
-
----
-
-## Quick Start
-
-### Multi-object tracking + trajectory prediction
+Tracking plus trajectory prediction:
 
 ```python
 import numpy as np
@@ -98,35 +87,16 @@ from pyrobovision.tracking.mot import MOTTracker, Detection
 from pyrobovision.prediction.trajectory import TrajectoryPredictor
 
 tracker = MOTTracker(max_age=30, min_hits=3)
-
-# Simulate a few frames of detections for one object moving right.
-boxes = [
-    np.array([100.0, 100.0, 140.0, 180.0]),
-    np.array([110.0, 100.0, 150.0, 180.0]),
-    np.array([120.0, 100.0, 160.0, 180.0]),
-    np.array([130.0, 100.0, 170.0, 180.0]),
-]
-
 positions = []
-for box in boxes:
-    tracker.update([Detection(bbox=box, confidence=0.9)])
-    track = tracker.get_track_by_id(1)
-    positions.append(track.get_position())
+for x in (100, 110, 120, 130):
+    tracker.update([Detection(bbox=np.array([x, 100, x + 40, 180]), confidence=0.9)])
+    positions.append(tracker.get_track_by_id(1).get_position())
 
-# Predict where the object goes next, using its tracked position history.
-predictor = TrajectoryPredictor(model="cv")  # "cv" = constant velocity, "ca" = constant acceleration
-future_positions = predictor.predict_trajectory(np.array(positions), horizon=5)
-print(future_positions)
+predictor = TrajectoryPredictor(model="cv")  # "cv" or "ca"
+print(predictor.predict_trajectory(np.array(positions), horizon=5))
 ```
 
-Occlusion is handled automatically: if a tracked object stops being detected for a
-few frames (`tracker.update([])`), its Kalman filter keeps predicting its position
-forward, and the track survives until `max_age` frames without a match — then a
-detection reappearing near the predicted location re-associates to the *same*
-`track_id`. This is exercised directly in
-[`tests/test_occlusion.py`](./tests/test_occlusion.py).
-
-### 3D perception: depth, 3D boxes, occupancy grid
+Depth + 3D boxes + occupancy (default heuristic depth; swap in `model="midas"` for real inference):
 
 ```python
 import numpy as np
@@ -134,198 +104,45 @@ from pyrobovision.perception.depth import DepthEstimator
 from pyrobovision.perception.bbox_3d import Box3DConverter
 from pyrobovision.perception.occupancy import OccupancyGridBuilder
 
-# model="heuristic" (default) needs no extra dependencies but is a
-# non-neural edge-density PLACEHOLDER, not real depth — see the module
-# docstring in perception/depth.py. For genuine learned depth:
-#   pip install "pyrobovision[depth]"
-#   estimator = DepthEstimator(model="midas")
 estimator = DepthEstimator(model="heuristic")
 estimator.set_calibration(fx=500, fy=500, cx=320, cy=240)
+depth = estimator.estimate_depth(np.random.randint(0, 255, (480, 640, 3), dtype=np.uint8))
 
-rgb_frame = np.random.randint(0, 255, (480, 640, 3), dtype=np.uint8)  # your camera frame
-depth_map = estimator.estimate_depth(rgb_frame)
-
-converter = Box3DConverter()
-bbox_3d = converter.from_2d_bbox_and_depth(
-    bbox_2d=np.array([100, 100, 200, 200]),
-    depth_map=depth_map.data,
-    fx=500, fy=500, cx=320, cy=240,
-)
-
-builder = OccupancyGridBuilder(grid_size=(100, 100), resolution=0.1)
-occupancy_grid = builder.from_3d_bboxes([bbox_3d])
-print(f"Occupied cells: {len(occupancy_grid.get_occupied_cells())}")
+box = Box3DConverter().from_2d_bbox_and_depth(
+    bbox_2d=np.array([100, 100, 200, 200]), depth_map=depth.data, fx=500, fy=500, cx=320, cy=240)
+grid = OccupancyGridBuilder(grid_size=(100, 100), resolution=0.1).from_3d_bboxes([box])
+print(len(grid.get_occupied_cells()))
 ```
 
-### Sensor fusion (IMU/GPS) and safety-constrained learning
+IMU/GPS fusion and safety checks:
 
 ```python
 from pyrobovision.fusion.sensor_fusion import SensorFusionEngine, IMUData, GPSData
 from pyrobovision.learning.safety import SafetyValidator
 
-fusion_engine = SensorFusionEngine(origin_lat=37.7749, origin_lon=-122.4194)
-state = fusion_engine.update_imu(IMUData(timestamp=0.0, accelerometer=[0, 0, 9.8], gyroscope=[0, 0, 0]))
-state = fusion_engine.update_gps(GPSData(timestamp=0.1, latitude=37.7749, longitude=-122.4194, altitude=10.0,
-                                          speed=5.0, heading=90.0, accuracy=2.0))
-print(f"Fused position: {state.position}, uncertainty: {state.covariance}")
+engine = SensorFusionEngine(origin_lat=37.7749, origin_lon=-122.4194)
+engine.update_imu(IMUData(timestamp=0.0, accelerometer=[0, 0, 9.8], gyroscope=[0, 0, 0]))
+state = engine.update_gps(GPSData(timestamp=0.1, latitude=37.7749, longitude=-122.4194,
+                                  altitude=10.0, speed=5.0, heading=90.0, accuracy=2.0))
 
-validator = SafetyValidator(max_acceleration=5.0, max_steering=45.0)
-proposed_action = np.array([6.5, 50.0])  # [acceleration, steering_angle] — over both limits
-safe_action = validator.correct_action(proposed_action, {"speed": 15.0})
+safe = SafetyValidator(max_acceleration=5.0, max_steering=45.0).correct_action(
+    proposed_action=[6.5, 50.0], context={"speed": 15.0})  # clamped to limits
 ```
-
----
-
-## What's real vs. placeholder
-
-| Module | Status |
-|---|---|
-| `tracking/` (Kalman filter, Hungarian association, MOT) | **Real**, tested (`test_kalman_filter.py`, `test_association.py`, `test_mot_tracker.py`, `test_occlusion.py`) |
-| `prediction/` (trajectory forecasting, uncertainty) | **Real**, tested |
-| `perception/depth.py` with `model="midas"` | **Real** — genuine pretrained MiDaS_small inference via `torch.hub` (optional `[depth]` extra) |
-| `perception/depth.py` with `model="heuristic"` (default) | **Placeholder** — Sobel-edge heuristic, not a depth model, documented as such in code |
-| `perception/bbox_3d.py`, `lidar.py`, `occupancy.py` | Real geometric utilities (not neural), tested |
-| `behavior/`, `intent/` | Rule-based classification, not learned models |
-| `learning/` (imitation, behavior cloning, safety, training) | Real, minimal implementations; not benchmarked against production RL frameworks |
-| `fusion/sensor_fusion.py` | Real Kalman-based IMU/GPS fusion |
-| `fusion/optimization.py` (ONNX export) | Real, thin wrapper around `torch.onnx.export` (optional `[onnx]`/`[depth]` extra) |
-
-## What's NOT included
-
-- **No object detector.** You bring your own detections (bounding boxes + confidence)
-  into `MOTTracker`. There is no YOLO/SAM/etc. bundled or wrapped here.
-- **No GPU-accelerated inference pipeline.** The tracking/prediction core is plain
-  NumPy/SciPy; it runs on CPU.
-- **No foundation-model integration** (CLIP, SAM, Grounding DINO). An earlier version
-  of this package shipped an "MCP 2.0" module and CLI/server "workflow" layer that
-  claimed to do this — it only ever returned hardcoded fake results (e.g. a fixed
-  `"frames_processed": 1200` regardless of input) and has been removed.
-- **Not a certified or safety-verified autonomous driving stack.** `SafetyValidator`
-  is a basic constraint-checking utility, not a certified safety system.
-- **MiDaS depth output is relative, not metric.** `model="midas"` gives correctly
-  *ordered* near/far depth, not depth in meters, unless you calibrate it against a
-  known reference distance yourself.
-
-## vs YOLOv8 + ByteTrack (`supervision`)
-
-PyRoboVision has no bundled object detector (see "What's NOT included"
-above), so the fair comparison isn't "detect and track a video" end to
-end — it's tracker-only, on identical input. Ran real YOLOv8n detections
-(`ultralytics`, person class only) once against a real video (OpenCV's
-`vtest.avi` test clip — real pedestrians walking in a real street scene,
-768x576, 10fps), then fed the *exact same* 883 real per-frame detections
-across 150 real frames into both `MOTTracker` and `supervision`'s
-`ByteTrack`, isolating tracker quality/speed from detector differences.
-
-| | PyRoboVision `MOTTracker` | ByteTrack (`supervision`) |
-|---|---|---|
-| Throughput | **7,268 FPS** | 2,580 FPS |
-| Unique confirmed track IDs over the clip | 24 | **15** |
-
-**What this actually shows:** PyRoboVision's plain NumPy/SciPy Kalman +
-Hungarian-IoU association is genuinely ~2.8x faster per frame — real,
-verified, no bug involved. But it produced 24 distinct track IDs for a
-15-second clip that, watched by eye, has on the order of a dozen real
-pedestrians — a real sign of track fragmentation (a person briefly
-occluded or missed for a frame gets a *new* ID instead of being
-re-associated with their old one) that ByteTrack's lower unique-ID count
-reflects better handling of. This is a real, known algorithmic tradeoff,
-not a bug: ByteTrack's real strength is a second association pass using
-*low-confidence* detections most trackers discard, specifically to bridge
-exactly this kind of gap — `MOTTracker`'s single-pass IoU association
-(confirmed in `tracking/mot.py`, matches the README's own honest
-description above) doesn't do this. If your priority is raw throughput on
-a resource-constrained device, PyRoboVision wins clearly; if track
-continuity through occlusion matters more than speed, ByteTrack's design
-is doing real, specific work PyRoboVision's simpler association doesn't
-attempt.
-
-No bugs found in this pass — `tracking/mot.py`'s association logic behaved
-exactly as documented, and the speed/fragmentation tradeoff above is a
-real property of the simpler algorithm, not a defect in it.
-
----
-
-## Testing
-
-```bash
-pip install -e ".[dev]"
-pytest tests/ -v
-```
-
-278 passed / 7 skipped, 84% coverage (re-measured for this pass - `pytest tests/ -q`,
-`--cov=src/pyrobovision`, 1982 statements / 317 missed) on Python 3.11 with no `torch`
-installed — the 7 skips are the MiDaS/torch-dependent tests (they run for real in CI's
-separate `test-depth-extra` job, and locally too once you `pip install
-"pyrobovision[depth]"`). CI runs the same base command on every push.
-
-Note: `black --check src/ tests/` and `isort --check-only src/ tests/` both currently
-report unformatted files (32 of 48 checked by black), and `mypy src/pyrobovision`
-reports 72 pre-existing type errors — none of this is enforced in CI today. See
-[ROADMAP_HONEST.md](./ROADMAP_HONEST.md#technical-debt) for specifics; it doesn't
-affect runtime correctness (all tests still pass), but `make lint` will not pass
-clean if you run it.
-
----
-
-## Architecture
-
-```
-src/pyrobovision/
-├── tracking/     Kalman filter + Hungarian-algorithm multi-object tracking
-├── prediction/   Trajectory forecasting (CV/CA models) + uncertainty
-├── perception/   Depth estimation, 3D bbox conversion, LiDAR, occupancy grids
-├── behavior/     Rule-based motion/behavior classification
-├── intent/       Rule-based intent prediction
-├── learning/     Imitation learning, behavior cloning, safety constraints, training loop
-└── fusion/       IMU/GPS sensor fusion, ONNX export utilities
-```
-
----
-
-## Related Projects
-
-- **[PyRoboFrames](https://github.com/Mullassery/PyRoboFrames)** — a separate,
-  independently published dataloader project by the same author (LeRobot, RLDS,
-  HDF5, NetCDF, S3-compatible object storage). PyRoboVision does not depend on it — if you want to feed
-  PyRoboFrames-loaded data into this tracker, install it separately.
-
-**Cross-repo compatibility, whole family**: this author also publishes
-`PyRoboSimulator`, `pyroboreplay`, and `PyTerrainMap`. Verified by reading
-every `Cargo.toml`/`pyproject.toml` across all of them: none has a Cargo or
-pip dependency on PyRoboVision, and PyRoboVision has none on them — each is
-independently installable and versioned.
-
----
 
 ## Documentation
 
+- [examples/](examples/) — `basic_tracking.py`, `depth_estimation.py`, `real_detector_tracking.py`
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — development setup and guidelines
-- [ROADMAP_HONEST.md](./ROADMAP_HONEST.md) — what's done, what's not, what's next, and known technical debt
-- [CHANGELOG.md](./CHANGELOG.md) — notable changes, Keep a Changelog format
-- [SECURITY.md](./SECURITY.md) — vulnerability reporting
+- [ROADMAP_HONEST.md](./ROADMAP_HONEST.md) — done / not done / next, and technical debt
+- [docs/BENCHMARKS.md](./docs/BENCHMARKS.md) — benchmark status and how to run your own
 - [docs/CODE_OF_CONDUCT.md](./docs/CODE_OF_CONDUCT.md) — community guidelines
-- [docs/BENCHMARKS.md](./docs/BENCHMARKS.md) — current benchmark status (none published yet — how to run your own)
-
----
+- [CHANGELOG.md](./CHANGELOG.md) — notable changes
+- [SECURITY.md](./SECURITY.md) — vulnerability reporting
 
 ## Contributing
 
-Contributions welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md).
-
-For security issues, see [SECURITY.md](./SECURITY.md).
+Contributions welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md). Security issues: [SECURITY.md](./SECURITY.md).
 
 ## License
 
-This project is licensed under the [Apache License 2.0](LICENSE).
-
-## Citation
-
-```bibtex
-@software{mullassery2026pyrobovision,
-  title={PyRoboVision: Multi-object tracking and trajectory prediction for robotics},
-  author={Mullassery, Georgi},
-  url={https://github.com/Mullassery/PyRoboVision},
-  year={2026}
-}
-```
+Apache License 2.0 — see [LICENSE](./LICENSE).
