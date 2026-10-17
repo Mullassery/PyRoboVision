@@ -74,3 +74,8 @@ was not retroactively reconstructed into this format — see `git log` and
 
 - `ROADMAP.md` -> `ROADMAP_HONEST.md` (content unchanged aside from the new
   Technical Debt section noted above).
+## [3.1.1] - 2026-10-17
+
+### Fixed
+- Audit remediation: security hardening, correctness fixes, and lint/CI gates.
+
