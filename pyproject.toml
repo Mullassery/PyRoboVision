@@ -48,6 +48,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Embedded architecture/knowledge-graph engine behind tools/codeatlas.
+architecture = ["codeatlas-rs>=0.3.0"]
 dev = [
     "pytest>=7.4,<10.0",
     "pytest-cov>=4.1,<8.0",
