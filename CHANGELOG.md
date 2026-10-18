@@ -11,6 +11,24 @@ was not retroactively reconstructed into this format — see `git log` and
 
 ## [Unreleased]
 
+## [3.1.2] - 2026-10-18
+
+### Added
+- `perception/adaptive.py`: `AdaptiveFrameController` for latency-triggered
+  frame skipping and resolution downsampling (RECHECK-028). It tracks an EWMA
+  of per-frame processing latency and, when the frame budget is exceeded,
+  asks the caller to skip frames (up to `max_skip`) and to process at a
+  reduced `scale` (down to `min_scale`), easing both back toward full
+  rate/resolution as latency recovers. Includes `downsample()` (OpenCV when
+  available, NumPy stride-decimation otherwise), `target_size()`, and
+  `effective_fps`/`decide()` introspection. Pure-NumPy, no new hard deps.
+
+### Fixed
+- `pyrobovision.__version__` now matches the published wheel version (it had
+  been left at 3.0.0 while `pyproject.toml` moved to 3.1.1); both are now
+  bumped together (3.1.2).
+
+
 ### Security
 
 - `pyproject.toml`: bumped dev-only dependency ceilings —

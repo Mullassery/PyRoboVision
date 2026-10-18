@@ -32,17 +32,20 @@ MiDaS depth inference and ONNX/TensorRT model export utilities.
 
 from typing import Final
 
-__version__: Final[str] = "3.0.0"
+__version__: Final[str] = "3.1.2"
 __author__: Final[str] = "Georgi Mammen Mullassery"
 __email__: Final[str] = "mullassery@gmail.com"
 __license__: Final[str] = "Proprietary"
 
 # Perception: 3D detection, depth, occupancy
 from .perception import (
+    AdaptiveFrameConfig,
+    AdaptiveFrameController,
     DepthEstimator,
     DepthMap,
     BBox3D,
     Box3DConverter,
+    FrameDecision,
     OccupancyGrid,
     OccupancyGridBuilder,
     LiDARProcessor,
@@ -103,10 +106,13 @@ from .behavior import (
 
 __all__: Final[list[str]] = [
     # Perception
+    "AdaptiveFrameConfig",
+    "AdaptiveFrameController",
     "DepthEstimator",
     "DepthMap",
     "BBox3D",
     "Box3DConverter",
+    "FrameDecision",
     "OccupancyGrid",
     "OccupancyGridBuilder",
     "LiDARProcessor",
