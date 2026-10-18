@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "outputs": {
+    "md": [
+      "overview.md",
+      "pyrobovision.3.1.md",
+      "src.3.md",
+      "tools.5.md"
+    ],
+    "html": [
+      "overview.html",
+      "pyrobovision.3.1.html",
+      "src.3.html",
+      "tools.5.html"
+    ]
+  }
+}
