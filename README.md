@@ -139,6 +139,16 @@ safe = SafetyValidator(max_acceleration=5.0, max_steering=45.0).correct_action(
 - [CHANGELOG.md](./CHANGELOG.md) — notable changes
 - [SECURITY.md](./SECURITY.md) — vulnerability reporting
 
+## Known issues and deferred work
+
+**Blocked / failed:**
+- Detector/GPU integration; otherwise freeze.
+
+**Rejected / deferred:**
+- Foundation models/CLIP/SAM.
+
+Full shipped/blocked/rejected detail: [`QUEUE_STATUS.md`](QUEUE_STATUS.md).
+
 ## Queue status
 
 Shipped, blocked/failed, and rejected work for this repository is documented in
