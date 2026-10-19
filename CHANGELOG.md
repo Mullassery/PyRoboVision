@@ -11,6 +11,21 @@ was not retroactively reconstructed into this format — see `git log` and
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-10-19
+
+### Added
+- Optional Alpamayo adapter for ego trajectories, rotations, and
+  Chain-of-Causation reasoning. Normalizes NumPy/tensor outputs without
+  importing `torch` or downloading model weights, and adds ADE/FDE
+  best-sample selection.
+
+## [3.2.0] - 2026-10-19
+
+### Added
+- ByteTrack-style two-stage association with low-confidence recovery.
+- Optional MIT Supervision adapter for detection and tracker interop.
+- Apache-2.0 license metadata corrected in package exports.
+
 ## [3.1.2] - 2026-10-18
 
 ### Added
