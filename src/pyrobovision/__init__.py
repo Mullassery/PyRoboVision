@@ -32,10 +32,10 @@ MiDaS depth inference and ONNX/TensorRT model export utilities.
 
 from typing import Final
 
-__version__: Final[str] = "3.1.2"
+__version__: Final[str] = "3.2.0"
 __author__: Final[str] = "Georgi Mammen Mullassery"
 __email__: Final[str] = "mullassery@gmail.com"
-__license__: Final[str] = "Proprietary"
+__license__: Final[str] = "Apache-2.0"
 
 # Perception: 3D detection, depth, occupancy
 from .perception import (
@@ -52,9 +52,26 @@ from .perception import (
     PointCloud,
 )
 
+# Optional integrations: Supervision detections, Alpamayo reasoning-VLA outputs
+from .integrations.alpamayo_adapter import (
+    AlpamayoOutput,
+    AlpamayoShapeError,
+    AlpamayoTrajectory,
+    AlpamayoTrajectoryAdapter,
+    trajectory_errors,
+)
+
 # Tracking: Multi-object tracking
+from .integrations.supervision_adapter import (
+    SupervisionTrackerAdapter,
+    SupervisionUnavailable,
+    detections_from_supervision,
+    tracks_to_supervision,
+)
+
 from .tracking import (
     MOTTracker,
+    ByteTrackTracker,
     Track,
     ObjectAssociation,
     KalmanFilter,
@@ -119,6 +136,17 @@ __all__: Final[list[str]] = [
     "PointCloud",
     # Tracking
     "MOTTracker",
+    "ByteTrackTracker",
+    "SupervisionTrackerAdapter",
+    "SupervisionUnavailable",
+    "detections_from_supervision",
+    "tracks_to_supervision",
+    # Optional Alpamayo integration
+    "AlpamayoOutput",
+    "AlpamayoShapeError",
+    "AlpamayoTrajectory",
+    "AlpamayoTrajectoryAdapter",
+    "trajectory_errors",
     "Track",
     "ObjectAssociation",
     "KalmanFilter",

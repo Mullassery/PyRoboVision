@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyrobovision"
-version = "3.1.2"
+version = "3.2.0"
 description = "Multi-object tracking (Kalman filter + Hungarian association) and trajectory prediction for robotics, with an optional real MiDaS monocular depth backend. Pure Python (NumPy + SciPy) core; PyTorch is optional."
 readme = "README.md"
 license = "Apache-2.0"
@@ -48,6 +48,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+supervision = ["supervision>=0.20"]
 dev = [
     "pytest>=7.4,<10.0",
     "pytest-cov>=4.1,<8.0",

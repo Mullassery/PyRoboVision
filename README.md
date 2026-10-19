@@ -40,7 +40,64 @@ PyRoboVision's real, tested core is a multi-object tracker: Kalman-filter state 
 
 ## Project status
 
-Beta (Development Status 4), version **3.1.0** (matching the latest PyPI release). `tracking/` and `prediction/` are implemented and tested; supporting utilities (perception, fusion, learning) are real but minimal. **278 passed / 7 skipped, 84% measured line coverage** on Python 3.11 (the 7 skips are the torch/MiDaS-dependent tests, which run when the `[depth]` extra is installed). `black --check` / `isort --check-only` currently report unformatted files and `mypy` reports pre-existing type errors, none enforced in CI today. See [ROADMAP_HONEST.md](./ROADMAP_HONEST.md).
+Beta (Development Status 4). Current source version is **3.2.0**; the latest PyPI release is **3.1.0**. `tracking/` and `prediction/` are implemented and tested; supporting utilities (perception, fusion, learning) are real but minimal. **304 passed / 8 skipped** in the local suite; the skips are optional torch/MiDaS paths that run when the `[depth]` extra is installed. `black` / `mypy` are not enforced in CI today. See [ROADMAP_HONEST.md](./ROADMAP_HONEST.md).
+
+## ByteTrack-style two-stage association
+
+`ByteTrackTracker` keeps low-confidence detections for a second association
+pass instead of throwing them away, improving continuity through short
+occlusions without adding Ultralytics/AGPL code:
+
+```python
+from pyrobovision import ByteTrackTracker
+
+tracker = ByteTrackTracker(high_threshold=0.5, low_threshold=0.1)
+tracks = tracker.update(detections)
+```
+
+Only high-confidence detections create new tracks; low-confidence detections
+may recover existing tracks. The implementation reuses the existing
+Kalman/Hungarian primitives and is unit-tested with synthetic boxes.
+
+## Bring your own detector (Supervision adapter)
+
+PyRoboVision still does not ship a detector. It now accepts detections from
+[Supervision](https://github.com/roboflow/supervision) (MIT), which normalizes
+outputs from MMDetection, YOLO-NAS, and other permissive detectors:
+
+```bash
+pip install "pyrobovision[supervision]"
+```
+
+```python
+from pyrobovision import SupervisionTrackerAdapter
+
+adapter = SupervisionTrackerAdapter()
+tracked = adapter.update(sv_detections)  # sv.Detections with tracker_id
+```
+
+`detections_from_supervision()` and `tracks_to_supervision()` are also exported
+for custom pipelines. Ultralytics remains unsupported because it is AGPL-3.0.
+
+## Alpamayo trajectory and reasoning adapter
+
+[Alpamayo](https://github.com/NVlabs/alpamayo) (inference code Apache-2.0)
+predicts ego trajectories and Chain-of-Causation reasoning. The optional
+adapter normalizes its NumPy/tensor outputs without importing `torch` or
+`alpamayo_r1`:
+
+```python
+from pyrobovision import AlpamayoTrajectoryAdapter
+
+adapter = AlpamayoTrajectoryAdapter()  # 64 waypoints at 10 Hz
+output = adapter.parse(pred_xyz, pred_rot, extra)  # upstream model outputs
+best, metrics = adapter.select_best(output, ego_future_xyz)
+```
+
+`output.trajectories` exposes `(x, y, z)` waypoints, optional rotations, and
+per-sample reasoning; `positions_2d()` drops `z` for 2D consumers. Alpamayo 1
+weights are research/non-commercial and inference requires an NVIDIA GPU, so
+model execution stays outside this package.
 
 ## Installation
 
