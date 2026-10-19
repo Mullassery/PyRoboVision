@@ -17,7 +17,7 @@ PyRoboVision's real, tested core is a multi-object tracker: Kalman-filter state 
 - **Occlusion handling** — every track is predicted each frame; a confirmed track survives up to `max_age` missed frames and re-associates to the same `track_id`.
 - **Trajectory prediction** — `TrajectoryPredictor` with `"cv"` (constant velocity) or `"ca"` (constant acceleration) models and uncertainty.
 - **Depth estimation** — `DepthEstimator(model="heuristic")` (default, no extra deps) or `model="midas"` (real pretrained MiDaS_small via `torch.hub`, optional `[depth]` extra).
-- **3D perception utilities** — `Box3DConverter` (2D bbox + depth → 3D), LiDAR point-cloud filtering/clustering, BEV occupancy grids.
+- **3D perception utilities** — `Box3DConverter` (2D bbox + depth → 3D), LiDAR point-cloud filtering/clustering, BEV occupancy grids, plus `OccupancyGrid.raycast()` / `line_of_sight()` for sensor line-of-sight checks.
 - **Sensor fusion** — Kalman-based IMU/GPS fusion with covariance (`SensorFusionEngine`).
 - **ONNX export** — thin wrapper around `torch.onnx.export` (optional `[onnx]` extra).
 - **Learning helpers** — imitation learning, behavior cloning, `SafetyValidator` constraint correction.

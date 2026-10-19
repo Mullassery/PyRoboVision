@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 from typing import Tuple, List, Optional
 from dataclasses import dataclass
@@ -36,6 +38,97 @@ class OccupancyGrid:
         if 0 <= grid_x < self.grid.shape[1] and 0 <= grid_y < self.grid.shape[0]:
             return float(self.grid[grid_y, grid_x])
         return 0.0
+
+    def raycast(
+        self,
+        origin: Tuple[float, float],
+        direction: Tuple[float, float],
+        max_range: Optional[float] = None,
+        threshold: float = 0.5,
+    ) -> Optional[Tuple[float, float, float]]:
+        """Cast a 2D ray through the grid (Amanatides–Woo traversal).
+
+        Returns ``(x, y, distance_m)`` for the first occupied cell, or ``None``
+        if the ray leaves the grid or reaches ``max_range`` without a hit.
+        """
+        ox, oy = float(origin[0]), float(origin[1])
+        dx, dy = float(direction[0]), float(direction[1])
+        norm = math.hypot(dx, dy)
+        if norm == 0.0:
+            return None
+        dx, dy = dx / norm, dy / norm
+
+        if max_range is None:
+            max_range = math.hypot(
+                self.grid.shape[1] * self.resolution,
+                self.grid.shape[0] * self.resolution,
+            )
+
+        # Continuous grid coordinates; cell (ix, iy) owns [ix, ix+1) x [iy, iy+1).
+        gx = (ox - self.origin[0]) / self.resolution
+        gy = (oy - self.origin[1]) / self.resolution
+        ix, iy = math.floor(gx), math.floor(gy)
+
+        step_x = 1 if dx > 0 else -1
+        step_y = 1 if dy > 0 else -1
+        delta_x = self.resolution / abs(dx) if dx != 0 else math.inf
+        delta_y = self.resolution / abs(dy) if dy != 0 else math.inf
+
+        if dx > 0:
+            next_x = (ix + 1) * self.resolution + self.origin[0]
+        elif dx < 0:
+            next_x = ix * self.resolution + self.origin[0]
+        else:
+            next_x = math.inf
+        if dy > 0:
+            next_y = (iy + 1) * self.resolution + self.origin[1]
+        elif dy < 0:
+            next_y = iy * self.resolution + self.origin[1]
+        else:
+            next_y = math.inf
+
+        t_max_x = (next_x - ox) / dx if dx != 0 else math.inf
+        t_max_y = (next_y - oy) / dy if dy != 0 else math.inf
+
+        def _in_bounds(cx: int, cy: int) -> bool:
+            return 0 <= cy < self.grid.shape[0] and 0 <= cx < self.grid.shape[1]
+
+        if _in_bounds(ix, iy) and self.grid[iy, ix] > threshold:
+            return ox, oy, 0.0
+
+        distance = 0.0
+        while distance <= max_range:
+            if t_max_x < t_max_y:
+                distance = t_max_x
+                ix += step_x
+                t_max_x += delta_x
+            else:
+                distance = t_max_y
+                iy += step_y
+                t_max_y += delta_y
+
+            if distance > max_range:
+                return None
+            if not _in_bounds(ix, iy):
+                return None
+            if self.grid[iy, ix] > threshold:
+                return ox + dx * distance, oy + dy * distance, distance
+        return None
+
+    def line_of_sight(
+        self,
+        start: Tuple[float, float],
+        end: Tuple[float, float],
+        threshold: float = 0.5,
+    ) -> bool:
+        """Whether no occupied cell blocks the segment ``start`` → ``end``."""
+        dx = float(end[0]) - float(start[0])
+        dy = float(end[1]) - float(start[1])
+        distance = math.hypot(dx, dy)
+        if distance == 0.0:
+            return True
+        hit = self.raycast(start, (dx, dy), max_range=distance, threshold=threshold)
+        return hit is None
 
     def get_occupied_cells(self, threshold: float = 0.5) -> List[Tuple[float, float]]:
         occupied = []
