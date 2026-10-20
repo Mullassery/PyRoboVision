@@ -192,6 +192,7 @@ safe = SafetyValidator(max_acceleration=5.0, max_steering=45.0).correct_action(
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — development setup and guidelines
 - [ROADMAP_HONEST.md](./ROADMAP_HONEST.md) — done / not done / next, and technical debt
 - [docs/OCCUPANCY.md](./docs/OCCUPANCY.md) — occupancy grids, raycasting, and line of sight
+- [docs/ALPAMAYO_WORKFLOW.md](./docs/ALPAMAYO_WORKFLOW.md) — Alpamayo install and trajectory ingestion boundary
 - [docs/BENCHMARKS.md](./docs/BENCHMARKS.md) — benchmark status and how to run your own
 - [docs/CODE_OF_CONDUCT.md](./docs/CODE_OF_CONDUCT.md) — community guidelines
 - [CHANGELOG.md](./CHANGELOG.md) — notable changes
