@@ -95,9 +95,11 @@ best, metrics = adapter.select_best(output, ego_future_xyz)
 ```
 
 `output.trajectories` exposes `(x, y, z)` waypoints, optional rotations, and
-per-sample reasoning; `positions_2d()` drops `z` for 2D consumers. Alpamayo 1
-weights are research/non-commercial and inference requires an NVIDIA GPU, so
-model execution stays outside this package.
+per-sample reasoning; `positions_2d()` drops `z` for 2D consumers. Alpamayo 1.5
+and 2 preserve the same 64-waypoint/10 Hz contract. Synthetic CPU-only fixtures
+for both versions live in `tests/fixtures/alpamayo/`. Alpamayo 1 weights are
+research/non-commercial and inference requires an NVIDIA GPU, so model execution
+stays outside this package.
 
 ## Installation
 

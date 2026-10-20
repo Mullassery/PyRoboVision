@@ -61,6 +61,29 @@ from pyrobovision.integrations import trajectory_errors
 metrics = trajectory_errors(pred_xyz, ground_truth_xyz)
 ```
 
+## Synthetic version fixtures
+
+CPU-only contract fixtures live in `tests/fixtures/alpamayo/`:
+
+- `alpamayo_1_5_synthetic.json`
+- `alpamayo_2_synthetic.json`
+
+They contain 64 waypoints at 10 Hz, two trajectory samples, Chain-of-Causation text, and explicit `model_version` metadata. They are synthetic: they are not captured model output and contain no weights. Use them to test shape handling and provenance plumbing, not model quality.
+
+```python
+import json
+from pathlib import Path
+
+payload = json.loads(
+    Path("tests/fixtures/alpamayo/alpamayo_2_synthetic.json").read_text()
+)
+output = adapter.parse(
+    payload["pred_xyz"],
+    extra={"cot": payload["cot"]},
+    metadata={"model_version": payload["model_version"]},
+)
+```
+
 ## Provenance
 
 - Alpamayo source: Apache-2.0.

@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import numpy as np
 import pytest
+
 from pyrobovision.integrations.alpamayo_adapter import (
     AlpamayoShapeError,
     AlpamayoTrajectoryAdapter,
@@ -117,3 +121,42 @@ def test_positions_2d_returns_independent_copies():
 
     assert output.best().xyz[0, 0] != 999.0
     assert positions.shape == (64, 2)
+
+
+FIXTURE_DIR = Path(__file__).parent / "fixtures" / "alpamayo"
+
+
+@pytest.mark.parametrize(
+    ("filename", "model_version"),
+    [
+        ("alpamayo_1_5_synthetic.json", "alpamayo-1.5"),
+        ("alpamayo_2_synthetic.json", "alpamayo-2"),
+    ],
+)
+def test_synthetic_model_version_fixtures_preserve_contract(
+    filename, model_version
+):
+    payload = json.loads((FIXTURE_DIR / filename).read_text())
+
+    output = AlpamayoTrajectoryAdapter().parse(
+        payload["pred_xyz"],
+        extra={"cot": payload["cot"]},
+        metadata={
+            "model_version": payload["model_version"],
+            "model": payload["model"],
+        },
+    )
+
+    assert payload["fixture"] == "synthetic"
+    assert payload["contract"] == {
+        "horizon": 64,
+        "dt": 0.1,
+        "coordinate_frame": "ego",
+    }
+    assert output.num_samples == 2
+    assert output.best().xyz.shape == (64, 3)
+    assert output.metadata["horizon"] == 64
+    assert output.metadata["dt"] == 0.1
+    assert output.metadata["model_version"] == model_version
+    assert output.trajectories[0].reasoning == payload["cot"][0]
+    assert output.trajectories[1].reasoning == payload["cot"][1]
