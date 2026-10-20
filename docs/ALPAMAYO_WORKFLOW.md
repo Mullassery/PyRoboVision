@@ -84,6 +84,17 @@ output = adapter.parse(
 )
 ```
 
+## Live artifact check
+
+When a real inference artifact is available, run the opt-in adapter check:
+
+```bash
+ALPAMAYO_ARTIFACT=/data/alpamayo/run.json \
+  PYTHONPATH=src python3 -m pytest tests/test_alpamayo_live.py
+```
+
+The test accepts `.json` and `.npz` artifacts and asserts the 64-waypoint/10 Hz contract. It skips unless `ALPAMAYO_ARTIFACT` is set and never loads model weights.
+
 ## Provenance
 
 - Alpamayo source: Apache-2.0.
