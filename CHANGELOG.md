@@ -15,6 +15,7 @@ was not retroactively reconstructed into this format — see `git log` and
 - Synthetic Alpamayo 1.5 and 2 contract fixtures in
   `tests/fixtures/alpamayo/`, covering the 64-waypoint/10 Hz trajectory shape
   and `model_version` provenance without model weights.
+- Opt-in live Alpamayo artifact parsing test gated by `ALPAMAYO_ARTIFACT`.
 
 ## [3.3.0] - 2026-10-19
 
