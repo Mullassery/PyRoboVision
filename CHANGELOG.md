@@ -21,6 +21,7 @@ was not retroactively reconstructed into this format — see `git log` and
 ### Changed
 - Pytest coverage is now opt-in; the default suite no longer requires
   `pytest-cov`, so it runs in minimal environments.
+- Updated GitHub Actions to Node 24-compatible releases.
 
 ## [3.3.1] - 2026-10-21
 
