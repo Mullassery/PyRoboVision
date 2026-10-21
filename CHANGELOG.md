@@ -11,6 +11,17 @@ was not retroactively reconstructed into this format — see `git log` and
 
 ## [Unreleased]
 
+### Added
+- Added Linux and Windows wheel/sdist build jobs to CI.
+
+### Fixed
+- Sorted the public re-export block and `__all__` in `pyrobovision.__init__`
+  to satisfy Ruff.
+
+### Changed
+- Pytest coverage is now opt-in; the default suite no longer requires
+  `pytest-cov`, so it runs in minimal environments.
+
 ## [3.3.1] - 2026-10-21
 
 ### Added

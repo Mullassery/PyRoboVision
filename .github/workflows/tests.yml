@@ -55,3 +55,34 @@ jobs:
         run: pip install pip-audit
       - name: Audit dependencies
         run: pip-audit
+
+  build:
+    name: Build distributions (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install build tools
+        run: python -m pip install build twine
+      - name: Build wheel and sdist
+        run: python -m build
+      - name: Validate distributions
+        shell: bash
+        run: python -m twine check dist/*
+      - name: Smoke-test wheel
+        shell: bash
+        run: |
+          python -m pip install --force-reinstall dist/*.whl
+          python -c "import pyrobovision; print(pyrobovision.__version__)"
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: distributions-${{ matrix.os }}
+          path: dist/*
+          if-no-files-found: error
