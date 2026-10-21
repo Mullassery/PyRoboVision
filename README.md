@@ -40,7 +40,7 @@ PyRoboVision's real, tested core is a multi-object tracker: Kalman-filter state 
 
 ## Project status
 
-Beta (Development Status 4). Current source version is **3.3.0**; the latest PyPI release is **3.2.0**. `tracking/` and `prediction/` are implemented and tested; supporting utilities (perception, fusion, learning) are real but minimal. **304 passed / 8 skipped** in the local suite; the skips are optional torch/MiDaS paths that run when the `[depth]` extra is installed. `black` / `mypy` are not enforced in CI today. See [ROADMAP_HONEST.md](./ROADMAP_HONEST.md).
+Beta (Development Status 4). Current source version is **3.3.1**; the latest PyPI release is **3.3.1**. `tracking/` and `prediction/` are implemented and tested; supporting utilities (perception, fusion, learning) are real but minimal. **311 passed / 9 skipped** in the local suite; the skips are optional torch/MiDaS paths that run when the `[depth]` extra is installed. `black` / `mypy` are not enforced in CI today. See [ROADMAP_HONEST.md](./ROADMAP_HONEST.md).
 
 ## ByteTrack-style two-stage association
 

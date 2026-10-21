@@ -32,7 +32,7 @@ MiDaS depth inference and ONNX/TensorRT model export utilities.
 
 from typing import Final
 
-__version__: Final[str] = "3.3.0"
+__version__: Final[str] = "3.3.1"
 __author__: Final[str] = "Georgi Mammen Mullassery"
 __email__: Final[str] = "mullassery@gmail.com"
 __license__: Final[str] = "Apache-2.0"
