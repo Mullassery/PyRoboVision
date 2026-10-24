@@ -7,7 +7,7 @@ body:
       value: |
         Before requesting a foundation-model integration (CLIP/SAM/Grounding
         DINO) or a bundled detector, please read
-        [ROADMAP_HONEST.md's "Known gaps" / "Out of scope for now"](../../ROADMAP_HONEST.md) —
+        [docs/internal/ROADMAP_HONEST.md's "Known gaps" / "Out of scope for now"](../../docs/internal/ROADMAP_HONEST.md) —
         an earlier version of this project shipped exactly that and it only
         returned hardcoded fake results, so it was removed. New proposals in
         that direction need to come with a real, working implementation, not

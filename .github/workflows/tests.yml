@@ -36,7 +36,7 @@ jobs:
 
   # Informational only (continue-on-error): pip-audit flags known
   # vulnerabilities in installed deps. Currently *known* to report findings
-  # in the pinned dev-tool ceilings (see ROADMAP_HONEST.md "Technical Debt" -
+  # in the pinned dev-tool ceilings (see docs/internal/ROADMAP_HONEST.md "Technical Debt" -
   # black and pytest each have an advisory whose fix version is blocked by
   # this repo's own pyproject.toml upper bound), so this does not gate merges
   # yet. Verified locally: `pip install pip-audit && pip-audit` runs fine
