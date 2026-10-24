@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 This file starts from the 2026-09 OSS maturity pass. Earlier history (v1.x-3.1.0)
 was not retroactively reconstructed into this format — see `git log` and
-[ROADMAP_HONEST.md](./ROADMAP_HONEST.md) for what changed and when up to that point.
+[docs/internal/ROADMAP_HONEST.md](docs/internal/ROADMAP_HONEST.md) for what changed and when up to that point.
 
 ## [Unreleased]
 
@@ -109,11 +109,11 @@ was not retroactively reconstructed into this format — see `git log` and
 
 - `.github/workflows/tests.yml`: `dependency-audit` job running `pip-audit`
   (informational, `continue-on-error: true` — see
-  [ROADMAP_HONEST.md](./ROADMAP_HONEST.md#technical-debt) for why it isn't a
+  [docs/internal/ROADMAP_HONEST.md](docs/internal/ROADMAP_HONEST.md#technical-debt) for why it isn't a
   hard gate yet).
 - `.github/ISSUE_TEMPLATE/bug_report.yml`, `.github/ISSUE_TEMPLATE/feature_request.yml`,
   `.github/pull_request_template.md`.
-- `ROADMAP_HONEST.md` "Technical Debt" section: concrete, file/line-level
+- `docs/internal/ROADMAP_HONEST.md` "Technical Debt" section: concrete, file/line-level
   findings from `black`, `isort`, `ruff`, `mypy`, and `pip-audit`.
 - This `CHANGELOG.md`.
 
@@ -125,7 +125,7 @@ was not retroactively reconstructed into this format — see `git log` and
 
 ### Renamed
 
-- `ROADMAP.md` -> `ROADMAP_HONEST.md` (content unchanged aside from the new
+- `ROADMAP.md` -> `docs/internal/ROADMAP_HONEST.md` (content unchanged aside from the new
   Technical Debt section noted above).
 ## [3.1.1] - 2026-10-17
 

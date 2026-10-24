@@ -11,7 +11,7 @@ association, with real occlusion handling and constant velocity/acceleration
 trajectory prediction. That core is genuinely implemented and tested (285 tests
 total; 278 passed / 7 skipped without the optional `torch`/`depth` extra installed,
 84% line coverage measured via `pytest --cov=src/pyrobovision` — re-verified for
-this pass, see ROADMAP_HONEST.md).
+this pass, see docs/internal/ROADMAP_HONEST.md).
 
 Around it are supporting utilities of varying maturity — see the table in
 [README.md](./README.md#whats-real-vs-placeholder) for the honest real/placeholder

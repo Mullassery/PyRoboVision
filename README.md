@@ -224,7 +224,7 @@ safe = SafetyValidator(max_acceleration=5.0, max_steering=45.0).correct_action(
 
 ## Project status
 
-Beta (Development Status 4). Current source version is **3.3.1**; the latest PyPI release is **3.3.1**. `tracking/` and `prediction/` are implemented and tested; supporting utilities (perception, fusion, learning) are real but minimal. **311 passed / 9 skipped** in the local suite; the skips are optional torch/MiDaS paths that run when the `[depth]` extra is installed. `black` / `mypy` are not enforced in CI today. See [ROADMAP_HONEST.md](./ROADMAP_HONEST.md).
+Beta (Development Status 4). Current source version is **3.3.1**; the latest PyPI release is **3.3.1**. `tracking/` and `prediction/` are implemented and tested; supporting utilities (perception, fusion, learning) are real but minimal. **311 passed / 9 skipped** in the local suite; the skips are optional torch/MiDaS paths that run when the `[depth]` extra is installed. `black` / `mypy` are not enforced in CI today. See [docs/internal/ROADMAP_HONEST.md](docs/internal/ROADMAP_HONEST.md).
 
 ## For AI agents
 
@@ -245,13 +245,13 @@ Canonical facts for automated tooling and coding agents:
 | Alpamayo execution | **External**; adapter parses outputs only |
 | SANA-WM | **Not integrated** |
 
-Agent-friendly docs: [CLAUDE.md](./CLAUDE.md), [ROADMAP_HONEST.md](./ROADMAP_HONEST.md), [docs/ALPAMAYO_WORKFLOW.md](./docs/ALPAMAYO_WORKFLOW.md).
+Agent-friendly docs: [CLAUDE.md](./CLAUDE.md), [docs/internal/ROADMAP_HONEST.md](docs/internal/ROADMAP_HONEST.md), [docs/ALPAMAYO_WORKFLOW.md](./docs/ALPAMAYO_WORKFLOW.md).
 
 ## Documentation
 
 - [examples/](examples/) — `basic_tracking.py`, `depth_estimation.py`, `real_detector_tracking.py`
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — development setup and guidelines
-- [ROADMAP_HONEST.md](./ROADMAP_HONEST.md) — done / not done / next, and technical debt
+- [docs/internal/ROADMAP_HONEST.md](docs/internal/ROADMAP_HONEST.md) — done / not done / next, and technical debt
 - [docs/OCCUPANCY.md](./docs/OCCUPANCY.md) — occupancy grids, raycasting, and line of sight
 - [docs/ALPAMAYO_WORKFLOW.md](./docs/ALPAMAYO_WORKFLOW.md) — Alpamayo install and trajectory ingestion boundary
 - [docs/BENCHMARKS.md](./docs/BENCHMARKS.md) — benchmark status and how to run your own
@@ -268,7 +268,7 @@ Agent-friendly docs: [CLAUDE.md](./CLAUDE.md), [ROADMAP_HONEST.md](./ROADMAP_HON
 - Foundation models/CLIP/SAM.
 - SANA-WM synthetic-video evaluation harness (not shipped; tracker remains frame-source agnostic).
 
-Full shipped/blocked/rejected detail: [`QUEUE_STATUS.md`](QUEUE_STATUS.md).
+Full shipped/blocked/rejected detail: [`docs/internal/QUEUE_STATUS.md`](docs/internal/QUEUE_STATUS.md).
 
 ## Contributing
 
