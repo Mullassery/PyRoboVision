@@ -1,11 +1,61 @@
 # PyRoboVision
 
-Multi-object tracking (Kalman filter + Hungarian association) and trajectory prediction for robotics — pure Python (NumPy + SciPy) core, with an optional real MiDaS monocular depth backend.
+**Tracking and trajectory prediction that runs on CPU — with a clean boundary to NVIDIA's Alpamayo stack.** Pure Python (NumPy + SciPy) multi-object tracking, occlusion handling, and motion forecasting for robotics.
 
 [![CI](https://github.com/Mullassery/PyRoboVision/actions/workflows/tests.yml/badge.svg)](https://github.com/Mullassery/PyRoboVision/actions/workflows/tests.yml)
 [![PyPI](https://img.shields.io/pypi/v/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+[![NVIDIA](https://img.shields.io/badge/NVIDIA-Alpamayo%20adapter-76B900?logo=nvidia&logoColor=white)](#nvidia-ecosystem)
+
+> **Why it exists:** most robot stacks need identity persistence and short-horizon motion prediction long before they need another foundation model. PyRoboVision gives you a tested Kalman + Hungarian tracker, a trajectory predictor with uncertainty, and adapters for the models you already run — without dragging PyTorch into your perception core.
+
+## 60-second quickstart
+
+```bash
+pip install pyrobovision
+```
+
+```python
+import numpy as np
+from pyrobovision import MOTTracker, Detection
+
+tracker = MOTTracker(max_age=30, min_hits=3)
+detections = [Detection(bbox=np.array([100, 100, 140, 180]), confidence=0.92)]
+
+for track in tracker.update(detections):
+    print(track.track_id, track.get_position(), track.get_velocity())
+```
+
+No detector is bundled — you bring bounding boxes from YOLO, SAM, MMDetection, or your own model. See the [Supervision adapter](#bring-your-own-detector-supervision-adapter).
+
+## NVIDIA ecosystem
+
+PyRoboVision is **NVIDIA-optional**: the tracker, predictor, depth utilities, and tests run on CPU with NumPy + SciPy. The NVIDIA touchpoint is an explicit model-output boundary, not a hidden dependency.
+
+| Component | Status | What it actually does |
+|---|---|---|
+| Alpamayo trajectory + reasoning adapter | **Available** | Normalizes Alpamayo NumPy/tensor outputs into `(x, y, z)` waypoints, rotations, and per-sample reasoning. Does **not** import `torch` or `alpamayo_r1`, and does **not** run the model. |
+| Alpamayo 1.5 / 2 contract fixtures | **Available** | CPU-only synthetic fixtures exercise the same 64-waypoint / 10 Hz contract in CI. They are not real model output. |
+| Alpamayo model execution | **External** | Alpamayo 1 weights are research/non-commercial and inference needs an NVIDIA GPU; install and run upstream, then pass outputs to the adapter. |
+| SANA-WM video generation / evaluation | **Not integrated** | No SANA-WM loader, generator, or benchmark ships. The tracker is model-agnostic over frames, but synthetic-video evaluation is not part of this release. |
+
+**The honest headline:** this is the CPU perception layer around an NVIDIA model — not an NVIDIA-accelerated tracker. That boundary is intentional: your tracking tests stay fast and deterministic while Alpamayo runs wherever its license and GPU allow.
+
+## At a glance
+
+| Area | Status |
+|---|---|
+| `MOTTracker` / `Track` / `Detection` | **Stable** — Kalman + Hungarian, birth/confirm/occlude/death |
+| Occlusion re-association | **Stable**, unit-tested |
+| `TrajectoryPredictor` (CV / CA + uncertainty) | **Stable** |
+| `ByteTrackTracker` two-stage association | **Available** |
+| Supervision detector adapter | **Available** |
+| Alpamayo adapter + synthetic fixtures | **Available** |
+| MiDaS depth (`[depth]`) | **Optional**, real pretrained model |
+| `DepthEstimator(model="heuristic")` | **Placeholder** — Sobel-edge heuristic, not learned depth |
+| Detector / GPU inference pipeline | **Not included** |
+| SANA-WM integration | **Not shipped** |
 
 ## What it is
 
@@ -16,6 +66,7 @@ PyRoboVision's real, tested core is a multi-object tracker: Kalman-filter state 
 - **Multi-object tracking** — `MOTTracker`, `Track`, `Detection`; birth/confirm/occlude/death lifecycle; IoU association via `scipy.optimize.linear_sum_assignment`.
 - **Occlusion handling** — every track is predicted each frame; a confirmed track survives up to `max_age` missed frames and re-associates to the same `track_id`.
 - **Trajectory prediction** — `TrajectoryPredictor` with `"cv"` (constant velocity) or `"ca"` (constant acceleration) models and uncertainty.
+- **ByteTrack-style association** — `ByteTrackTracker` keeps low-confidence detections for a second pass, improving continuity through short occlusions without AGPL code.
 - **Depth estimation** — `DepthEstimator(model="heuristic")` (default, no extra deps) or `model="midas"` (real pretrained MiDaS_small via `torch.hub`, optional `[depth]` extra).
 - **3D perception utilities** — `Box3DConverter` (2D bbox + depth → 3D), LiDAR point-cloud filtering/clustering, BEV occupancy grids, plus `OccupancyGrid.raycast()` / `line_of_sight()` for sensor line-of-sight checks.
 - **Sensor fusion** — Kalman-based IMU/GPS fusion with covariance (`SensorFusionEngine`).
@@ -26,6 +77,7 @@ PyRoboVision's real, tested core is a multi-object tracker: Kalman-filter state 
 
 - **Adding tracking on top of your own detector** — feed bounding boxes from YOLO/SAM/anything into `MOTTracker`; it handles identity persistence through occlusion.
 - **Forecasting from tracked positions** — constant-velocity/acceleration prediction with uncertainty for downstream collision-avoidance logic.
+- **Consuming Alpamayo outputs on CPU** — parse ego trajectories and reasoning without importing the model stack.
 - **IMU/GPS fusion** — a fused position estimate with covariance without hand-rolling a Kalman filter.
 - **Prototyping 3D perception** — depth maps, 3D boxes, and occupancy grids from 2D detections and a calibrated camera.
 
@@ -37,10 +89,7 @@ PyRoboVision's real, tested core is a multi-object tracker: Kalman-filter state 
 - **MiDaS output is relative, not metric** — correctly ordered near/far depth, not meters, unless you calibrate against a known reference.
 - **Not a certified or safety-verified autonomous-driving stack.** `SafetyValidator` is a basic constraint checker.
 - **The default `heuristic` depth backend is a Sobel-edge placeholder, not a learned depth model.**
-
-## Project status
-
-Beta (Development Status 4). Current source version is **3.3.1**; the latest PyPI release is **3.3.1**. `tracking/` and `prediction/` are implemented and tested; supporting utilities (perception, fusion, learning) are real but minimal. **311 passed / 9 skipped** in the local suite; the skips are optional torch/MiDaS paths that run when the `[depth]` extra is installed. `black` / `mypy` are not enforced in CI today. See [ROADMAP_HONEST.md](./ROADMAP_HONEST.md).
+- **Alpamayo is not executed in-process.** The adapter consumes outputs; model weights, licensing, and GPU requirements stay upstream.
 
 ## ByteTrack-style two-stage association
 
@@ -121,21 +170,6 @@ cd PyRoboVision
 pip install -e ".[dev]"
 ```
 
-## Quick start
-
-```python
-import numpy as np
-from pyrobovision.tracking.mot import MOTTracker, Detection
-
-tracker = MOTTracker(max_age=30, min_hits=3)
-
-# Detections come from *your* detector — each is a bounding box + confidence.
-detections = [Detection(bbox=np.array([100, 100, 140, 180]), confidence=0.92)]
-
-for track in tracker.update(detections):
-    print(track.track_id, track.get_position(), track.get_velocity())
-```
-
 ## Usage
 
 Tracking plus trajectory prediction:
@@ -188,6 +222,31 @@ safe = SafetyValidator(max_acceleration=5.0, max_steering=45.0).correct_action(
     proposed_action=[6.5, 50.0], context={"speed": 15.0})  # clamped to limits
 ```
 
+## Project status
+
+Beta (Development Status 4). Current source version is **3.3.1**; the latest PyPI release is **3.3.1**. `tracking/` and `prediction/` are implemented and tested; supporting utilities (perception, fusion, learning) are real but minimal. **311 passed / 9 skipped** in the local suite; the skips are optional torch/MiDaS paths that run when the `[depth]` extra is installed. `black` / `mypy` are not enforced in CI today. See [ROADMAP_HONEST.md](./ROADMAP_HONEST.md).
+
+## For AI agents
+
+Canonical facts for automated tooling and coding agents:
+
+| Fact | Value |
+|---|---|
+| Package | `pyrobovision` |
+| Python | `>=3.10` |
+| Runtime deps | NumPy + SciPy only |
+| Core entry points | `MOTTracker`, `ByteTrackTracker`, `TrajectoryPredictor`, `AlpamayoTrajectoryAdapter` |
+| Source layout | `src/pyrobovision/{tracking,prediction,perception,fusion,learning,behavior,intent}` |
+| Tests | `pip install -e ".[dev]"` then `pytest tests/ -v` |
+| Coverage | `pytest tests/ --cov=src/pyrobovision --cov-report=term-missing` |
+| Lint / format | `ruff check src/pyrobovision/`, `black src/ tests/`, `isort src/ tests/` |
+| GPU needed? | **No** for tracker, predictor, adapters, or tests |
+| Optional extras | `[depth]` (PyTorch + MiDaS), `[onnx]`, `[supervision]` |
+| Alpamayo execution | **External**; adapter parses outputs only |
+| SANA-WM | **Not integrated** |
+
+Agent-friendly docs: [CLAUDE.md](./CLAUDE.md), [ROADMAP_HONEST.md](./ROADMAP_HONEST.md), [docs/ALPAMAYO_WORKFLOW.md](./docs/ALPAMAYO_WORKFLOW.md).
+
 ## Documentation
 
 - [examples/](examples/) — `basic_tracking.py`, `depth_estimation.py`, `real_detector_tracking.py`
@@ -207,6 +266,7 @@ safe = SafetyValidator(max_acceleration=5.0, max_steering=45.0).correct_action(
 
 **Rejected / deferred:**
 - Foundation models/CLIP/SAM.
+- SANA-WM synthetic-video evaluation harness (not shipped; tracker remains frame-source agnostic).
 
 Full shipped/blocked/rejected detail: [`QUEUE_STATUS.md`](QUEUE_STATUS.md).
 
