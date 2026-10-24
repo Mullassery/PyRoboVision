@@ -1,5 +1,6 @@
-import pytest
 import numpy as np
+import pytest
+
 from pyrobovision.perception.depth import DepthEstimator, DepthMap
 
 
@@ -151,7 +152,7 @@ class TestDepthEstimator:
 
         try:
             depth_map = estimator.estimate_depth(image)
-        except Exception as exc:  # pragma: no cover - environment-dependent
+        except Exception as exc:  # noqa: BLE001  # pragma: no cover - environment-dependent
             pytest.skip(f"MiDaS weight download/inference unavailable: {exc}")
 
         assert depth_map.data.shape == (120, 160)
@@ -213,12 +214,54 @@ class TestDepthEstimator:
             max_depth=100.0,
         )
 
-        lidar_points = np.array([
-            [0, 0, 5.0],
-            [1, 1, 6.0],
-            [2, 2, 4.5],
-        ])
+        lidar_points = np.array(
+            [
+                [0, 0, 5.0],
+                [1, 1, 6.0],
+                [2, 2, 4.5],
+            ]
+        )
 
         fused = estimator.fuse_with_lidar(depth_map, lidar_points, weight=0.5)
 
         assert fused.data.shape == depth_map.data.shape
+
+
+class TestMetricCalibration:
+    def _map(self):
+        return DepthMap(
+            data=np.array([[2.0, 4.0], [6.0, 8.0]]),
+            scale=1.0,
+            shift=0.0,
+            min_depth=2.0,
+            max_depth=8.0,
+        )
+
+    def test_single_reference_scales_whole_map(self):
+        calibrated = self._map().calibrate_metric_scale(
+            np.array([[0, 0]]), np.array([3.0])
+        )
+        assert calibrated.data[0, 0] == pytest.approx(3.0)
+        assert calibrated.data[1, 1] == pytest.approx(12.0)
+        assert calibrated.scale == pytest.approx(1.5)
+        assert calibrated.shift == 0.0
+        assert calibrated.min_depth == pytest.approx(3.0)
+        assert calibrated.max_depth == pytest.approx(12.0)
+
+    def test_two_references_fit_affine_transform(self):
+        calibrated = self._map().calibrate_metric_scale(
+            np.array([[0, 0], [1, 1]]),
+            np.array([10.0, 20.0]),
+        )
+        # sampled 2 -> 10, 8 -> 20 => slope 10/6, intercept 20/3
+        assert calibrated.data[0, 0] == pytest.approx(10.0)
+        assert calibrated.data[1, 1] == pytest.approx(20.0)
+        assert calibrated.data[1, 0] == pytest.approx((10.0 / 6.0) * 6.0 + (20.0 / 3.0))
+
+    def test_invalid_references_raise(self):
+        with pytest.raises(ValueError):
+            self._map().calibrate_metric_scale(np.array([0, 0]), np.array([5.0]))
+        with pytest.raises(ValueError):
+            self._map().calibrate_metric_scale(np.array([[0, 0]]), np.array([-1.0]))
+        with pytest.raises(ValueError):
+            self._map().calibrate_metric_scale(np.array([[0, 0]]), np.array([1.0, 2.0]))

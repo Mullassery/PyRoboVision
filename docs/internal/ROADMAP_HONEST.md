@@ -38,7 +38,10 @@
       real weights) feeding real per-frame detections into `MOTTracker`; verified end-to-end
       locally (real model download + inference + tracking, including a genuine missed-detection
       frame the tracker predicts through).
-- [ ] Metric-scale calibration helper for the MiDaS depth backend
+- [x] Metric-scale calibration helper for the MiDaS depth backend —
+      `DepthMap.calibrate_metric_scale(reference_pixels, reference_depths_m)`
+      fits a scale (one reference) or affine transform (two or more) and
+      returns a metric `DepthMap`; covered by `tests/test_depth_estimation.py`.
 - [x] Expand trajectory prediction beyond CV/CA (e.g. a small learned model, optional-torch) —
       `LearnedTrajectoryModel` in `prediction/trajectory.py` (small GRU on velocity sequences,
       real Adam+MSE training via `fit()`, raises rather than returning garbage if used unfitted).

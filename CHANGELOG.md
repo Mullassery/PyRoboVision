@@ -12,6 +12,9 @@ was not retroactively reconstructed into this format — see `git log` and
 ## [Unreleased]
 
 ### Added
+- `DepthMap.calibrate_metric_scale(...)` converts MiDaS relative depth to
+  metric meters from one or more known reference points.
+
 - Added Linux and Windows wheel/sdist build jobs to CI.
 
 ### Fixed

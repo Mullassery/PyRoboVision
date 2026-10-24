@@ -19,7 +19,6 @@ Two backends are available via ``DepthEstimator(model=...)``:
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 from scipy.ndimage import median_filter as _ndi_median_filter
@@ -87,6 +86,65 @@ class DepthMap:
             shift=self.shift,
             min_depth=self.min_depth,
             max_depth=self.max_depth,
+        )
+
+    def calibrate_metric_scale(
+        self,
+        reference_pixels: np.ndarray,
+        reference_depths_m: np.ndarray,
+    ) -> "DepthMap":
+        """Fit relative depth to metric meters from known reference points.
+
+        MiDaS produces relative depth, not meters. Give this method one or
+        more pixel coordinates whose real distance is known (e.g. from
+        LiDAR, a surveyed object, or a stereo pair). With one reference it
+        applies a scale factor; with two or more it fits ``metric = a *
+        depth + b`` by least squares. The returned map is a new
+        ``DepthMap`` with metric depths and updated ``min_depth`` /
+        ``max_depth`` bounds.
+
+        Args:
+            reference_pixels: ``(N, 2)`` array of ``(x, y)`` pixel coords.
+            reference_depths_m: ``(N,)`` array of known metric depths.
+
+        Raises:
+            ValueError: if shapes mismatch, no valid references are found,
+                or the fitted scale is non-positive.
+        """
+        pixels = np.asarray(reference_pixels, dtype=np.float64)
+        metrics = np.asarray(reference_depths_m, dtype=np.float64)
+        if pixels.ndim != 2 or pixels.shape[1] != 2:
+            raise ValueError("reference_pixels must have shape (N, 2)")
+        if metrics.ndim != 1 or len(metrics) != len(pixels):
+            raise ValueError(
+                "reference_depths_m must have shape (N,) matching reference_pixels"
+            )
+
+        sampled = self.get_depth_batch(pixels)
+        valid = (
+            np.isfinite(sampled) & np.isfinite(metrics) & (sampled > 0) & (metrics > 0)
+        )
+        if not np.any(valid):
+            raise ValueError("no valid reference points (positive, finite depth)")
+
+        sampled = sampled[valid]
+        metrics = metrics[valid]
+        if len(sampled) >= 2 and np.ptp(sampled) > 1e-9:
+            design = np.column_stack([sampled, np.ones_like(sampled)])
+            scale, shift = np.linalg.lstsq(design, metrics, rcond=None)[0]
+        else:
+            scale = float(np.mean(metrics / sampled))
+            shift = 0.0
+        if not np.isfinite(scale) or scale <= 0:
+            raise ValueError("calibration produced a non-positive scale factor")
+
+        calibrated = np.clip(scale * self.data + shift, 1e-6, None)
+        return DepthMap(
+            data=calibrated,
+            scale=float(scale),
+            shift=float(shift),
+            min_depth=float(calibrated.min()),
+            max_depth=float(calibrated.max()),
         )
 
     def to_3d(self, fx: float, fy: float, cx: float, cy: float) -> np.ndarray:
@@ -161,7 +219,7 @@ class DepthEstimator:
         except ImportError as exc:
             raise ImportError(
                 "model='midas' requires PyTorch. Install it with "
-                "`pip install \"pyrobovision[depth]\"` (or `pip install torch`), "
+                '`pip install "pyrobovision[depth]"` (or `pip install torch`), '
                 "or use DepthEstimator(model='heuristic') for a dependency-free "
                 "(but non-neural, non-metric) placeholder."
             ) from exc
@@ -250,7 +308,9 @@ class DepthEstimator:
 
     # -- Placeholder heuristic ------------------------------------------
 
-    def _estimate_depth_heuristic(self, image: np.ndarray, use_median: bool = True) -> DepthMap:
+    def _estimate_depth_heuristic(
+        self, image: np.ndarray, use_median: bool = True
+    ) -> DepthMap:
         """Sobel-edge-based depth PLACEHOLDER.
 
         This is NOT a depth estimation model. It assigns a slightly closer
