@@ -2,7 +2,7 @@
 
 **Tracking and trajectory prediction that runs on CPU — with a clean boundary to NVIDIA's Alpamayo stack.** Pure Python (NumPy + SciPy) multi-object tracking, occlusion handling, and motion forecasting for robotics.
 
-[![CI](https://github.com/Mullassery/PyRoboVision/actions/workflows/tests.yml/badge.svg)](https://github.com/Mullassery/PyRoboVision/actions/workflows/tests.yml)
+[![CI](../PyRoboVision/actions/workflows/tests.yml/badge.svg)](../PyRoboVision/actions/workflows/tests.yml)
 [![PyPI](https://img.shields.io/pypi/v/pyrobovision)](https://pypi.org/project/pyrobovision/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
@@ -165,7 +165,7 @@ pip install "pyrobovision[onnx]"
 Requires Python 3.10+. From source:
 
 ```bash
-git clone https://github.com/Mullassery/PyRoboVision.git
+git clone ../PyRoboVision
 cd PyRoboVision
 pip install -e ".[dev]"
 ```
@@ -280,14 +280,14 @@ PyRoboVision is one of six complementary, composable tools in the Mullassery **r
 
 | Tool | Role | What it does |
 |---|---|---|
-| [PyRoboVision](https://github.com/Mullassery/PyRoboVision) | Perception | **This project** — multi-object tracker (Kalman filter + Hungarian algorithm) and trajectory predictor for robot perception. |
-| [PyTerrainMap](https://github.com/Mullassery/PyTerrainMap) | Mapping / SLAM | Fuses multi-robot terrain observations into a spatial-temporal store, with H3 spatial indexing and SLAM. |
-| [PyRoboSimulator](https://github.com/Mullassery/PyRoboSimulator) | Simulation | World simulator for autonomous systems, with a FastAPI backend. |
-| [PyRoboFrames](https://github.com/Mullassery/PyRoboFrames) | Learning data | Rust-backed ML dataloader for robot-learning datasets (native LeRobot format, Apple Silicon hardware video decode). |
-| [PyRoboReplay](https://github.com/Mullassery/PyRoboReplay) | Mission forensics | Forensic-debugging and causal-analysis engine for autonomous robot mission replay. |
-| [SyncFleet](https://github.com/Mullassery/SyncFleet) | Fleet coordination | Rust + SQLite, peer-to-peer state sync for robotics fleets — mutual-TLS 1.3, version-vector replication, mDNS discovery; conflict resolution on the roadmap. |
+| [PyRoboVision](../PyRoboVision) | Perception | **This project** — multi-object tracker (Kalman filter + Hungarian algorithm) and trajectory predictor for robot perception. |
+| [PyTerrainMap](../PyTerrainMap) | Mapping / SLAM | Fuses multi-robot terrain observations into a spatial-temporal store, with H3 spatial indexing and SLAM. |
+| [PyRoboSimulator](../PyRoboSimulator) | Simulation | World simulator for autonomous systems, with a FastAPI backend. |
+| [PyRoboFrames](../PyRoboFrames) | Learning data | Rust-backed ML dataloader for robot-learning datasets (native LeRobot format, Apple Silicon hardware video decode). |
+| [PyRoboReplay](../PyRoboReplay) | Mission forensics | Forensic-debugging and causal-analysis engine for autonomous robot mission replay. |
+| [SyncFleet](../SyncFleet) | Fleet coordination | Rust + SQLite, peer-to-peer state sync for robotics fleets — mutual-TLS 1.3, version-vector replication, mDNS discovery; conflict resolution on the roadmap. |
 
-Each works standalone, but they're complementary by design. [Browse all projects →](https://github.com/Mullassery?tab=repositories)
+Each works standalone, but they're complementary by design. [Browse all projects →](../Mullassery-profile)
 
 ## License
 
