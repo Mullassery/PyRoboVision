@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "PyRoboVision: A Modular Python Framework for Multi-Object Tracking, Trajectory Prediction, and Robotic Perception"
+version: "3.3.1"
+date-released: "2026-10-28"
+authors:
+  - family-names: "Mullassery"
+    given-names: "Georgi Mammen"
+    email: "mullassery@gmail.com"
+license: "Apache-2.0"
+repository-code: "https://github.com/Mullassery/PyRoboVision"
+url: "https://github.com/Mullassery/PyRoboVision"
+doi: "10.5281/zenodo.23698604"
+keywords:
+  - multi-object-tracking
+  - trajectory-prediction
+  - kalman-filter
+  - hungarian-algorithm
+  - robotics
+  - computer-vision
+  - python
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Mullassery"
+      given-names: "Georgi Mammen"
+  title: "PyRoboVision: A Modular Python Framework for Multi-Object Tracking, Trajectory Prediction, and Robotic Perception"
+  year: 2026
+  doi: "10.5281/zenodo.23698604"
+  publisher: "Zenodo"
+  url: "https://doi.org/10.5281/zenodo.23698604"

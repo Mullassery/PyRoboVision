@@ -289,6 +289,23 @@ PyRoboVision is one of six complementary, composable tools in the Mullassery **r
 
 Each works standalone, but they're complementary by design. [Browse all projects →](../Mullassery-profile)
 
+## Citation
+
+If you use PyRoboVision in your research, please cite:
+
+```bibtex
+@misc{mullassery2026pyrobovision,
+  author       = {Mullassery, Georgi Mammen},
+  title        = {PyRoboVision: A Modular Python Framework for Multi-Object Tracking, Trajectory Prediction, and Robotic Perception},
+  year         = {2026},
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.23698604},
+  url          = {https://doi.org/10.5281/zenodo.23698604}
+}
+```
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23698604.svg)](https://doi.org/10.5281/zenodo.23698604)
+
 ## License
 
 Apache License 2.0 — see [LICENSE](./LICENSE).
